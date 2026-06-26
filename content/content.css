@@ -1,142 +1,182 @@
-/* AO3 Comment Editor extension styles */
+/* AO3 Comment Editor — content.css */
 
-/* Extra AO3 tag buttons row */
-.ao3ce-extra-tags .trix-button {
-  font-size: 0.75em;
-  padding: 0 0.5em;
-  font-family: monospace;
-}
-
-/* H2–H6 heading buttons — 3-column grid, two rows */
-.ao3ce-headings-group {
-  display: inline-grid !important;
-  grid-template-columns: repeat(3, 1fr);
-  border: 1px solid #ccc;
-  border-radius: 3px;
-}
-.ao3ce-heading-btn {
-  font-size: 0.65em;
-  padding: 0 0.3em;
-  font-weight: bold;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  line-height: 1.6;
-}
-.ao3ce-heading-btn:nth-child(3n) {
-  border-right: none;
-}
-.ao3ce-heading-btn:nth-last-child(-n+3) {
-  border-bottom: none;
-}
-
-/* Image toolbar button */
-.ao3ce-image-btn {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  border-bottom: none !important;
-  font-size: 1em;
-  padding: 0 0.4em;
-}
-
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
 
 .ao3ce-wrapper {
+  --ao3ce-red:        #900;
+  --ao3ce-red-dark:   #700;
+  --ao3ce-border:     #aaa;
+  --ao3ce-border-sub: #ccc;
+  --ao3ce-bg:         #fff;
+  --ao3ce-bg-chrome:  color-mix(in srgb, var(--ao3ce-bg) 97%, #000);
+  --ao3ce-bg-btn:     color-mix(in srgb, var(--ao3ce-bg) 95%, #000);
+  --ao3ce-text:       #333;
+  --ao3ce-text-muted: color-mix(in srgb, var(--ao3ce-text) 60%, transparent);
+  --ao3ce-font-body:  Georgia, "Times New Roman", serif;
+  --ao3ce-font-mono:  monospace;
+
   margin-bottom: 0.5em;
 }
 
+/* ── Dark mode tokens ───────────────────────────────────────────────────── */
+
+/* System dark mode */
+@media (prefers-color-scheme: dark) {
+  .ao3ce-wrapper {
+    --ao3ce-border:     #444;
+    --ao3ce-border-sub: #555;
+    --ao3ce-bg:         #333;
+    --ao3ce-text:       #ccc;
+  }
+}
+
+/* Reversi theme: JS detects dark background and adds .ao3ce-dark */
+.ao3ce-wrapper.ao3ce-dark {
+  --ao3ce-border:     #444;
+  --ao3ce-border-sub: #555;
+  --ao3ce-bg:         #333;
+  --ao3ce-text:       #ccc;
+}
+
+/* ── Mode toggle ────────────────────────────────────────────────────────── */
+
 .ao3ce-toggle {
   display: flex;
-  gap: 0;
   margin-bottom: 4px;
 }
 
 .ao3ce-btn {
-  padding: 2px 12px;
+  padding: 2px 12px 7px;
   font-size: 0.85em;
-  background: #f5f5f5;
-  border: 1px solid #aaa;
+  background: var(--ao3ce-bg-btn);
+  border: 1px solid var(--ao3ce-border);
   cursor: pointer;
-  color: #333;
+  color: var(--ao3ce-text);
   line-height: 1.6;
 }
 
-.ao3ce-btn:first-child {
-  border-radius: 3px 0 0 3px;
-}
-
-.ao3ce-btn:last-child {
-  border-radius: 0 3px 3px 0;
-  border-left: none;
-}
+.ao3ce-btn:first-child { border-radius: 3px 0 0 3px; }
+.ao3ce-btn:last-child  { border-radius: 0 3px 3px 0; border-left: none; }
 
 .ao3ce-btn--active {
-  background: #900;
+  background: var(--ao3ce-red);
   color: #fff;
-  border-color: #700;
+  border-color: var(--ao3ce-red-dark);
 }
 
-/* ── Counter AO3's aggressive CSS reset inside the rich editor ────────── */
+/* ── Toolbar ────────────────────────────────────────────────────────────── */
 
-/* Headings */
-trix-editor h1 { font-size: 2em !important;    font-weight: bold !important; display: block !important; margin: 0.33em 0 !important; }
-trix-editor h2 { font-size: 1.5em !important;  font-weight: bold !important; display: block !important; margin: 0.42em 0 !important; }
-trix-editor h3 { font-size: 1.17em !important; font-weight: bold !important; display: block !important; margin: 0.5em 0 !important; }
-trix-editor h4 { font-size: 1em !important;    font-weight: bold !important; display: block !important; margin: 0.67em 0 !important; }
-trix-editor h5 { font-size: 0.83em !important; font-weight: bold !important; display: block !important; margin: 0.83em 0 !important; }
-trix-editor h6 { font-size: 0.75em !important; font-weight: bold !important; display: block !important; margin: 1em 0 !important; }
-
-/* Superscript / subscript */
-trix-editor sup { vertical-align: super !important; font-size: 0.75em !important; }
-trix-editor sub { vertical-align: sub !important;   font-size: 0.75em !important; }
-
-/* Size variants */
-trix-editor big   { font-size: 1.17em !important; }
-trix-editor small { font-size: 0.83em !important; }
-
-/* Monospace inline elements */
-trix-editor code,
-trix-editor tt,
-trix-editor kbd,
-trix-editor samp { font-family: monospace !important; }
-
-/* Blockquote */
-trix-editor blockquote {
-  border-left: 3px solid #aaa !important;
-  margin: 0.5em 0 0.5em 1em !important;
-  padding-left: 0.75em !important;
+.ao3ce-wrapper trix-toolbar {
+  border: 1px solid var(--ao3ce-border);
+  border-radius: 3px 3px 0 0;
+  border-bottom: 1px solid var(--ao3ce-border-sub);
+  padding: 4px 6px;
+  background: var(--ao3ce-bg-chrome);
 }
 
-/* Restore list styles that AO3's global CSS resets on both ul/ol and li */
-trix-editor ul,
-trix-editor ul li {
-  list-style: disc !important;
-}
-trix-editor ol,
-trix-editor ol li {
-  list-style: decimal !important;
-}
-trix-editor ul,
-trix-editor ol {
-  padding-left: 1.5em !important;
+.ao3ce-wrapper trix-toolbar [data-trix-action="attachFiles"] {
+  display: none;
 }
 
-/* Trix editor overrides */
-trix-editor.ao3ce-editor {
-  border: 1px solid #aaa;
-  border-top: none; /* toolbar sits above */
+.ao3ce-wrapper trix-toolbar .ao3ce-image-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  padding: 0 0.4em;
+  border-bottom: none;
+}
+
+.ao3ce-wrapper trix-toolbar .ao3ce-headings-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  width: 4.5em;
+  align-self: center;
+}
+
+.ao3ce-wrapper trix-toolbar .ao3ce-heading-btn {
+  font-size: 0.65em;
+  font-weight: bold;
+  padding: 0;
+  width: 33.33%;
+  text-align: center;
+  line-height: 1.8;
+  border: none;
+  border-bottom: 1px solid var(--ao3ce-border-sub);
+}
+
+.ao3ce-wrapper trix-toolbar .ao3ce-heading-btn:nth-child(n+4) {
+  border-bottom: none;
+}
+
+.ao3ce-wrapper trix-toolbar .ao3ce-extra-tags .trix-button {
+  font-size: 0.7em;
+  padding: 0 0.4em;
+  font-family: var(--ao3ce-font-mono);
+  border: none;
+}
+
+/* ── Image URL row ──────────────────────────────────────────────────────── */
+
+.ao3ce-image-row {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--ao3ce-border);
+  border-top: none;
+  background: var(--ao3ce-bg-chrome);
+}
+
+.ao3ce-image-row input {
+  flex: 1;
+  padding: 3px 6px;
+  font-size: 0.85em;
+  border: 1px solid var(--ao3ce-border);
+  border-radius: 3px;
+  background: var(--ao3ce-bg);
+  color: var(--ao3ce-text);
+}
+
+.ao3ce-image-row input::placeholder { color: var(--ao3ce-text-muted); }
+
+.ao3ce-image-row button {
+  padding: 3px 10px;
+  font-size: 0.85em;
+  background: var(--ao3ce-bg-btn);
+  border: 1px solid var(--ao3ce-border);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ao3ce-text);
+}
+
+.ao3ce-image-row button:hover { filter: brightness(0.95); }
+
+.ao3ce-image-hint {
+  display: block;
+  width: 100%;
+  color: var(--ao3ce-text-muted);
+  font-size: 0.8em;
+  margin-top: 4px;
+}
+
+/* ── Rich editor ────────────────────────────────────────────────────────── */
+
+.ao3ce-wrapper trix-editor {
+  border: 1px solid var(--ao3ce-border);
+  border-top: none;
   border-radius: 0 0 3px 3px;
-  background: #fff;
+  background: var(--ao3ce-bg);
+  color: var(--ao3ce-text);
   min-height: 8em;
-  max-height: 24em;
   overflow-y: auto;
   resize: vertical;
   padding: 8px 10px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--ao3ce-font-body);
   font-size: 1em;
 }
 
-/* Plain HTML textarea — match Trix editor dimensions when visible */
 textarea.ao3ce-plain-textarea {
   display: block;
   width: 100%;
@@ -147,161 +187,69 @@ textarea.ao3ce-plain-textarea {
   border: 1px solid #aaa;
   border-radius: 0 3px 3px 3px;
   background: #fff;
+  color: #333;
   box-sizing: border-box;
   resize: vertical;
 }
 
-/* Hide only the attach button — we replace it with our Image URL button */
-trix-toolbar [data-trix-action="attachFiles"] {
-  display: none;
-}
-
-/* Image URL row */
-
-.ao3ce-image-row {
-  display: none;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border: 1px solid #aaa;
-  border-top: none;
-  background: #f9f9f9;
-}
-
-.ao3ce-image-row input {
-  flex: 1;
-  padding: 3px 6px;
-  font-size: 0.85em;
-  border: 1px solid #aaa;
-  border-radius: 3px;
-}
-
-.ao3ce-image-row button {
-  padding: 3px 10px;
-  font-size: 0.85em;
-  background: #f5f5f5;
-  border: 1px solid #aaa;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.ao3ce-image-row button:hover {
-  background: #e5e5e5;
-}
-
-.ao3ce-image-hint {
-  display: block;
-  width: 100%;
-  color: #666;
-  font-size: 0.8em;
-  margin-top: 4px;
-}
-
-trix-toolbar {
-  border: 1px solid #aaa;
-  border-radius: 3px 3px 0 0;
-  border-bottom: 1px solid #ccc;
-  padding: 4px 6px;
-  background: #f9f9f9;
-}
-
-/* ── Dark mode (Reversi skin detected) ── */
-
-/* textarea sits outside the wrapper so gets the class directly */
 textarea.ao3ce-plain-textarea.ao3ce-dark {
   background: #333;
   border-color: #444;
-  color: #ddd;
-}
-
-.ao3ce-dark .ao3ce-btn {
-  background: #2a2a2a;
-  border-color: #555;
   color: #ccc;
 }
 
-.ao3ce-dark .ao3ce-btn--active {
-  background: #900;
-  color: #fff;
-  border-color: #700;
+/* ── AO3 CSS reset overrides ─────────────────────────────────────────────
+   AO3's reset uses element-only selectors (0,0,1 specificity).
+   .ao3ce-wrapper prefix gives us (0,1,N), winning cleanly without !important. */
+
+.ao3ce-wrapper trix-editor :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: bold;
+  display: block;
+}
+.ao3ce-wrapper trix-editor h1 { font-size: 2em;    margin: 0.33em 0; }
+.ao3ce-wrapper trix-editor h2 { font-size: 1.5em;  margin: 0.42em 0; }
+.ao3ce-wrapper trix-editor h3 { font-size: 1.17em; margin: 0.5em  0; }
+.ao3ce-wrapper trix-editor h4 { font-size: 1em;    margin: 0.67em 0; }
+.ao3ce-wrapper trix-editor h5 { font-size: 0.83em; margin: 0.83em 0; }
+.ao3ce-wrapper trix-editor h6 { font-size: 0.75em; margin: 1em    0; }
+
+.ao3ce-wrapper trix-editor sup { vertical-align: super; font-size: 0.75em; }
+.ao3ce-wrapper trix-editor sub { vertical-align: sub;   font-size: 0.75em; }
+.ao3ce-wrapper trix-editor big   { font-size: 1.17em; }
+.ao3ce-wrapper trix-editor small { font-size: 0.83em; }
+
+.ao3ce-wrapper trix-editor :is(code, tt, kbd, samp) {
+  font-family: var(--ao3ce-font-mono);
 }
 
-.ao3ce-dark trix-toolbar {
-  background: #2a2a2a;
-  border-color: #444;
+.ao3ce-wrapper trix-editor blockquote {
+  border-left: 3px solid var(--ao3ce-border);
+  margin: 0.5em 0 0.5em 1em;
+  padding-left: 0.75em;
 }
 
-.ao3ce-dark trix-toolbar .trix-button-group {
-  border-color: #444;
-}
+.ao3ce-wrapper trix-editor :is(ul, ul li) { list-style: disc; }
+.ao3ce-wrapper trix-editor :is(ol, ol li) { list-style: decimal; }
+.ao3ce-wrapper trix-editor :is(ul, ol)    { padding-left: 1.5em; }
 
-.ao3ce-dark trix-toolbar .trix-button-group:not(:first-child) {
-  border-left-color: #444;
-}
+/* ── Dark mode: Trix toolbar adjustments ───────────────────────────────── */
 
-.ao3ce-dark trix-toolbar .trix-button {
-  background: transparent;
-  color: #ccc;
-  border-bottom-color: #444;
-}
+.ao3ce-dark trix-toolbar .trix-button-group,
+.ao3ce-dark trix-toolbar .trix-button-group:not(:first-child) { border-color: var(--ao3ce-border); }
+.ao3ce-dark trix-toolbar .trix-button { background: transparent; color: var(--ao3ce-text); border-bottom-color: var(--ao3ce-border); }
+.ao3ce-dark trix-toolbar .trix-button:not(:first-child)       { border-left-color: var(--ao3ce-border); }
+.ao3ce-dark trix-toolbar .trix-button.trix-active             { background: #3a3a3a; color: #fff; }
+.ao3ce-dark trix-toolbar .trix-button:disabled                { color: #555; }
+.ao3ce-dark trix-toolbar .trix-button--icon::before           { filter: invert(1); }
+.ao3ce-dark trix-toolbar .trix-button--icon:disabled::before  { filter: invert(1) opacity(0.3); }
 
-.ao3ce-dark trix-toolbar .trix-button:not(:first-child) {
-  border-left-color: #444;
-}
-
-.ao3ce-dark trix-toolbar .trix-button.trix-active {
-  background: #3a3a3a;
-  color: #fff;
-}
-
-.ao3ce-dark trix-toolbar .trix-button:disabled {
-  color: #555;
-}
-
-.ao3ce-dark trix-toolbar .trix-button--icon::before {
-  filter: invert(1);
-}
-
-.ao3ce-dark trix-toolbar .trix-button--icon:disabled::before {
-  filter: invert(1) opacity(0.3);
-}
-
-.ao3ce-dark trix-toolbar .ao3ce-image-btn {
-  color: #ccc;
-}
-
-.ao3ce-dark trix-editor.ao3ce-editor {
-  background: #333;
-  border-color: #444;
-  color: #ddd;
-}
-
-.ao3ce-dark .ao3ce-image-row {
-  background: #2a2a2a;
-  border-color: #444;
-}
-
-.ao3ce-dark .ao3ce-image-row input {
-  background: #333;
-  border-color: #444;
-  color: #ddd;
-}
-
-.ao3ce-dark .ao3ce-image-row input::placeholder {
-  color: #666;
-}
-
-.ao3ce-dark .ao3ce-image-row button {
-  background: #333;
-  border-color: #555;
-  color: #ccc;
-}
-
-.ao3ce-dark .ao3ce-image-row button:hover {
-  background: #444;
-}
-
-.ao3ce-dark .ao3ce-image-hint {
-  color: #888;
+@media (prefers-color-scheme: dark) {
+  .ao3ce-wrapper trix-toolbar .trix-button-group,
+  .ao3ce-wrapper trix-toolbar .trix-button-group:not(:first-child) { border-color: var(--ao3ce-border); }
+  .ao3ce-wrapper trix-toolbar .trix-button { background: transparent; color: var(--ao3ce-text); border-bottom-color: var(--ao3ce-border); }
+  .ao3ce-wrapper trix-toolbar .trix-button:not(:first-child)       { border-left-color: var(--ao3ce-border); }
+  .ao3ce-wrapper trix-toolbar .trix-button.trix-active             { background: #3a3a3a; color: #fff; }
+  .ao3ce-wrapper trix-toolbar .trix-button:disabled                { color: #555; }
+  .ao3ce-wrapper trix-toolbar .trix-button--icon::before           { filter: invert(1); }
+  .ao3ce-wrapper trix-toolbar .trix-button--icon:disabled::before  { filter: invert(1) opacity(0.3); }
 }
