@@ -1,0 +1,65 @@
+/* AO3 Comment Editor extension styles */
+
+.ao3ce-wrapper {
+  margin-bottom: 0.5em;
+}
+
+.ao3ce-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 4px;
+}
+
+.ao3ce-btn {
+  padding: 2px 12px;
+  font-size: 0.85em;
+  background: #f5f5f5;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  color: #333;
+  line-height: 1.6;
+}
+
+.ao3ce-btn:first-child {
+  border-radius: 3px 0 0 3px;
+}
+
+.ao3ce-btn:last-child {
+  border-radius: 0 3px 3px 0;
+  border-left: none;
+}
+
+.ao3ce-btn--active {
+  background: #900;
+  color: #fff;
+  border-color: #700;
+}
+
+.ao3ce-editor {
+  border: 1px solid #aaa;
+  border-radius: 0 3px 3px 3px;
+  background: #fff;
+}
+
+/* Override Quill snow border so it merges with our wrapper */
+.ao3ce-editor .ql-container.ql-snow {
+  border: none;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1em;
+}
+
+.ao3ce-editor .ql-toolbar.ql-snow {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 4px 6px;
+}
+
+.ao3ce-editor .ql-editor {
+  min-height: 8em;
+  padding: 8px 10px;
+}
+
+.ao3ce-editor .ql-editor.ql-blank::before {
+  font-style: italic;
+  color: #999;
+}

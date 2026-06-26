@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "AO3 Comment Editor",
+  "version": "1.0.0",
+  "description": "Adds a WYSIWYG rich text editor to AO3 comment boxes",
+  "permissions": [],
+  "host_permissions": [
+    "https://archiveofourown.org/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://archiveofourown.org/*"],
+      "js": ["vendor/purify.min.js", "vendor/quill.js", "content/content.js"],
+      "css": ["vendor/quill.snow.css", "content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "48": "icons/icon-48.png"
+  }
+}
