@@ -19,7 +19,6 @@ function sanitize(html) {
   return DOMPurify.sanitize(html, { ALLOWED_TAGS, ALLOWED_ATTR, KEEP_CONTENT: true });
 }
 
-// Track injected textareas so we don't double-inject
 const injected = new WeakSet();
 let editorCounter = 0;
 
@@ -27,11 +26,9 @@ function injectEditor(textarea) {
   if (injected.has(textarea)) return;
   injected.add(textarea);
 
-  // --- build wrapper ---
   const wrapper = document.createElement("div");
   wrapper.className = "ao3ce-wrapper";
 
-  // toggle bar (mirrors AO3's author edit buttons)
   const toggleBar = document.createElement("div");
   toggleBar.className = "ao3ce-toggle";
 
@@ -42,56 +39,132 @@ function injectEditor(textarea) {
 
   const plainBtn = document.createElement("button");
   plainBtn.type = "button";
-  plainBtn.textContent = "Plain";
+  plainBtn.textContent = "Plain (HTML)";
   plainBtn.className = "ao3ce-btn";
 
   toggleBar.append(richBtn, plainBtn);
 
-  // Trix needs a hidden <input> as its backing store
   const inputId = `ao3ce-input-${++editorCounter}`;
   const hiddenInput = document.createElement("input");
   hiddenInput.type = "hidden";
   hiddenInput.id = inputId;
 
-  // trix-editor element
   const editorEl = document.createElement("trix-editor");
   editorEl.setAttribute("input", inputId);
   editorEl.className = "ao3ce-editor";
 
-  wrapper.append(toggleBar, hiddenInput, editorEl);
-  textarea.parentNode.insertBefore(wrapper, textarea);
+  // image URL row (shown/hidden via Image button in toggle bar)
+  const imageRow = document.createElement("div");
+  imageRow.className = "ao3ce-image-row";
 
-  // hide original textarea
+  const imageInput = document.createElement("input");
+  imageInput.type = "url";
+  imageInput.placeholder = "Image URL…";
+
+  const imageInsertBtn = document.createElement("button");
+  imageInsertBtn.type = "button";
+  imageInsertBtn.textContent = "Insert";
+
+  const imageCancelBtn = document.createElement("button");
+  imageCancelBtn.type = "button";
+  imageCancelBtn.textContent = "Cancel";
+
+  const imageHint = document.createElement("small");
+  imageHint.className = "ao3ce-image-hint";
+  imageHint.textContent = "Must be a direct image link ending in .jpg, .jpeg, .png, or .gif — hosted on a permanent host (Imgur, Pillowfort, etc.). Discord and Tumblr links expire.";
+
+  imageRow.append(imageInput, imageInsertBtn, imageCancelBtn, imageHint);
+
+  wrapper.append(toggleBar, hiddenInput, editorEl, imageRow);
+  textarea.parentNode.insertBefore(wrapper, textarea);
+  textarea.classList.add("ao3ce-plain-textarea");
   textarea.style.display = "none";
 
-  // seed from textarea if it already has content (e.g. edit mode)
-  if (textarea.value.trim()) {
-    // loadHTML must run after the editor is connected/ready
-    editorEl.addEventListener("trix-initialize", () => {
-      editorEl.editor.loadHTML(textarea.value);
-    }, { once: true });
-  }
+  let trixReady = false;
 
-  // sync Trix → textarea on every change
+  editorEl.addEventListener("trix-initialize", () => {
+    trixReady = true;
+    if (textarea.value.trim()) {
+      editorEl.editor.loadHTML(textarea.value);
+    }
+
+    // inject Image button into the toolbar
+    const toolbar = wrapper.querySelector("trix-toolbar");
+    if (toolbar) {
+      const imageBtn = document.createElement("button");
+      imageBtn.type = "button";
+      imageBtn.textContent = "IMG";
+      imageBtn.className = "trix-button ao3ce-image-btn";
+      imageBtn.setAttribute("title", "Insert image by URL");
+      imageBtn.tabIndex = -1;
+
+      const fileTools = toolbar.querySelector(".trix-button-group--file-tools");
+      if (fileTools) fileTools.append(imageBtn);
+
+      imageBtn.addEventListener("click", () => {
+        const open = imageRow.style.display === "flex";
+        imageRow.style.display = open ? "none" : "flex";
+        if (!open) imageInput.focus();
+      });
+    }
+  }, { once: true });
+
+  // sync Trix → AO3 textarea on every change so the form submits correctly
   editorEl.addEventListener("trix-change", () => {
     textarea.value = sanitize(hiddenInput.value);
   });
 
-  // Rich / Plain toggle
-  richBtn.addEventListener("click", () => {
+  function showRich() {
     richBtn.classList.add("ao3ce-btn--active");
     plainBtn.classList.remove("ao3ce-btn--active");
-    editorEl.editor.loadHTML(textarea.value);
-    wrapper.querySelectorAll("trix-toolbar, trix-editor").forEach(el => el.style.display = "");
-    textarea.style.display = "none";
-  });
 
-  plainBtn.addEventListener("click", () => {
+    // match height to what the plain textarea currently is
+    editorEl.style.height = textarea.offsetHeight + "px";
+    textarea.style.display = "none";
+
+    if (trixReady) {
+      editorEl.editor.loadHTML(sanitize(textarea.value));
+    }
+
+    wrapper.querySelectorAll("trix-toolbar, trix-editor").forEach(el => el.style.display = "");
+  }
+
+  function showPlain() {
     plainBtn.classList.add("ao3ce-btn--active");
     richBtn.classList.remove("ao3ce-btn--active");
-    textarea.value = sanitize(hiddenInput.value);
+
+    // flush current Trix content and match height to the editor area
+    if (trixReady) {
+      textarea.value = sanitize(hiddenInput.value);
+    }
+    textarea.style.height = editorEl.offsetHeight + "px";
+
     wrapper.querySelectorAll("trix-toolbar, trix-editor").forEach(el => el.style.display = "none");
     textarea.style.display = "";
+  }
+
+  richBtn.addEventListener("click", showRich);
+  plainBtn.addEventListener("click", showPlain);
+
+  imageCancelBtn.addEventListener("click", () => {
+    imageRow.style.display = "none";
+    imageInput.value = "";
+  });
+
+  imageInsertBtn.addEventListener("click", () => {
+    const url = imageInput.value.trim();
+    if (!url) return;
+    if (trixReady) {
+      editorEl.editor.insertHTML(`<img src="${url}" alt="">`);
+    }
+    imageRow.style.display = "none";
+    imageInput.value = "";
+    editorEl.focus();
+  });
+
+  imageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") imageInsertBtn.click();
+    if (e.key === "Escape") imageCancelBtn.click();
   });
 }
 
@@ -99,9 +172,7 @@ function scanAndInject() {
   document.querySelectorAll("textarea[id^='comment_content_for']").forEach(injectEditor);
 }
 
-// Initial scan
 scanAndInject();
 
-// Watch for dynamically injected reply forms
 const observer = new MutationObserver(() => scanAndInject());
 observer.observe(document.body, { childList: true, subtree: true });
