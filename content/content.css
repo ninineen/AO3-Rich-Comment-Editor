@@ -175,6 +175,7 @@
   background: var(--ao3ce-bg);
   color: var(--ao3ce-text);
   min-height: 8em;
+  max-height: 800px;
   overflow-y: auto;
   resize: vertical;
   padding: 8px 10px;
