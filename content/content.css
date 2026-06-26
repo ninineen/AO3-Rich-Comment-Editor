@@ -1,4 +1,36 @@
-/* AO3 Comment Editor extension styles *//* Image toolbar button */
+/* AO3 Comment Editor extension styles */
+
+/* Extra AO3 tag buttons row */
+.ao3ce-extra-tags .trix-button {
+  font-size: 0.75em;
+  padding: 0 0.5em;
+  font-family: monospace;
+}
+
+/* H2–H6 heading buttons — 3-column grid, two rows */
+.ao3ce-headings-group {
+  display: inline-grid !important;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+.ao3ce-heading-btn {
+  font-size: 0.65em;
+  padding: 0 0.3em;
+  font-weight: bold;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  line-height: 1.6;
+}
+.ao3ce-heading-btn:nth-child(3n) {
+  border-right: none;
+}
+.ao3ce-heading-btn:nth-last-child(-n+3) {
+  border-bottom: none;
+}
+
+/* Image toolbar button */
 .ao3ce-image-btn {
   display: inline-flex !important;
   align-items: center;
@@ -44,6 +76,51 @@
   border-color: #700;
 }
 
+/* ── Counter AO3's aggressive CSS reset inside the rich editor ────────── */
+
+/* Headings */
+trix-editor h1 { font-size: 2em !important;    font-weight: bold !important; display: block !important; margin: 0.33em 0 !important; }
+trix-editor h2 { font-size: 1.5em !important;  font-weight: bold !important; display: block !important; margin: 0.42em 0 !important; }
+trix-editor h3 { font-size: 1.17em !important; font-weight: bold !important; display: block !important; margin: 0.5em 0 !important; }
+trix-editor h4 { font-size: 1em !important;    font-weight: bold !important; display: block !important; margin: 0.67em 0 !important; }
+trix-editor h5 { font-size: 0.83em !important; font-weight: bold !important; display: block !important; margin: 0.83em 0 !important; }
+trix-editor h6 { font-size: 0.75em !important; font-weight: bold !important; display: block !important; margin: 1em 0 !important; }
+
+/* Superscript / subscript */
+trix-editor sup { vertical-align: super !important; font-size: 0.75em !important; }
+trix-editor sub { vertical-align: sub !important;   font-size: 0.75em !important; }
+
+/* Size variants */
+trix-editor big   { font-size: 1.17em !important; }
+trix-editor small { font-size: 0.83em !important; }
+
+/* Monospace inline elements */
+trix-editor code,
+trix-editor tt,
+trix-editor kbd,
+trix-editor samp { font-family: monospace !important; }
+
+/* Blockquote */
+trix-editor blockquote {
+  border-left: 3px solid #aaa !important;
+  margin: 0.5em 0 0.5em 1em !important;
+  padding-left: 0.75em !important;
+}
+
+/* Restore list styles that AO3's global CSS resets on both ul/ol and li */
+trix-editor ul,
+trix-editor ul li {
+  list-style: disc !important;
+}
+trix-editor ol,
+trix-editor ol li {
+  list-style: decimal !important;
+}
+trix-editor ul,
+trix-editor ol {
+  padding-left: 1.5em !important;
+}
+
 /* Trix editor overrides */
 trix-editor.ao3ce-editor {
   border: 1px solid #aaa;
@@ -53,6 +130,7 @@ trix-editor.ao3ce-editor {
   min-height: 8em;
   max-height: 24em;
   overflow-y: auto;
+  resize: vertical;
   padding: 8px 10px;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1em;

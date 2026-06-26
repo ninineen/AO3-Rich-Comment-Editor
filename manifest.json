@@ -1,8 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "AO3 Comment Editor",
+  "name": "AO3 Rich Comment Editor",
+  "short_name": "AO3 Comment Editor",
   "version": "1.0.0",
-  "description": "Adds a WYSIWYG rich text editor to AO3 comment boxes",
+  "description": "Format AO3 comments with bold, italic, links, lists, and more. Adds the same Rich/Plain editor toggle that authors get — now for every commenter.",
+  "author": "ninineen",
+  "homepage_url": "https://github.com/ninineen/AO3-Rich-Comment-Editor",
   "permissions": [],
   "host_permissions": [
     "https://archiveofourown.org/*"
@@ -17,6 +20,13 @@
     }
   ],
   "icons": {
-    "48": "icons/icon-48.png"
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ao3-rich-comment-editor@ninineen",
+      "strict_min_version": "109.0"
+    }
   }
 }
