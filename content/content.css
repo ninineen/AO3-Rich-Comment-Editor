@@ -127,3 +127,103 @@ trix-toolbar {
   padding: 4px 6px;
   background: #f9f9f9;
 }
+
+/* ── Dark mode (Reversi skin detected) ── */
+
+/* textarea sits outside the wrapper so gets the class directly */
+textarea.ao3ce-plain-textarea.ao3ce-dark {
+  background: #333;
+  border-color: #444;
+  color: #ddd;
+}
+
+.ao3ce-dark .ao3ce-btn {
+  background: #2a2a2a;
+  border-color: #555;
+  color: #ccc;
+}
+
+.ao3ce-dark .ao3ce-btn--active {
+  background: #900;
+  color: #fff;
+  border-color: #700;
+}
+
+.ao3ce-dark trix-toolbar {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.ao3ce-dark trix-toolbar .trix-button-group {
+  border-color: #444;
+}
+
+.ao3ce-dark trix-toolbar .trix-button-group:not(:first-child) {
+  border-left-color: #444;
+}
+
+.ao3ce-dark trix-toolbar .trix-button {
+  background: transparent;
+  color: #ccc;
+  border-bottom-color: #444;
+}
+
+.ao3ce-dark trix-toolbar .trix-button:not(:first-child) {
+  border-left-color: #444;
+}
+
+.ao3ce-dark trix-toolbar .trix-button.trix-active {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.ao3ce-dark trix-toolbar .trix-button:disabled {
+  color: #555;
+}
+
+.ao3ce-dark trix-toolbar .trix-button--icon::before {
+  filter: invert(1);
+}
+
+.ao3ce-dark trix-toolbar .trix-button--icon:disabled::before {
+  filter: invert(1) opacity(0.3);
+}
+
+.ao3ce-dark trix-toolbar .ao3ce-image-btn {
+  color: #ccc;
+}
+
+.ao3ce-dark trix-editor.ao3ce-editor {
+  background: #333;
+  border-color: #444;
+  color: #ddd;
+}
+
+.ao3ce-dark .ao3ce-image-row {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.ao3ce-dark .ao3ce-image-row input {
+  background: #333;
+  border-color: #444;
+  color: #ddd;
+}
+
+.ao3ce-dark .ao3ce-image-row input::placeholder {
+  color: #666;
+}
+
+.ao3ce-dark .ao3ce-image-row button {
+  background: #333;
+  border-color: #555;
+  color: #ccc;
+}
+
+.ao3ce-dark .ao3ce-image-row button:hover {
+  background: #444;
+}
+
+.ao3ce-dark .ao3ce-image-hint {
+  color: #888;
+}

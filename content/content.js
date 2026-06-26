@@ -22,12 +22,21 @@ function sanitize(html) {
 const injected = new WeakSet();
 let editorCounter = 0;
 
+function isPageDark() {
+  const bg = getComputedStyle(document.body).backgroundColor;
+  // parse rgb(r, g, b) and check luminance
+  const m = bg.match(/\d+/g);
+  if (!m) return false;
+  const [r, g, b] = m.map(Number);
+  return (0.299 * r + 0.587 * g + 0.114 * b) < 128;
+}
+
 function injectEditor(textarea) {
   if (injected.has(textarea)) return;
   injected.add(textarea);
 
   const wrapper = document.createElement("div");
-  wrapper.className = "ao3ce-wrapper";
+  wrapper.className = "ao3ce-wrapper" + (isPageDark() ? " ao3ce-dark" : "");
 
   const toggleBar = document.createElement("div");
   toggleBar.className = "ao3ce-toggle";
@@ -78,6 +87,7 @@ function injectEditor(textarea) {
   wrapper.append(toggleBar, hiddenInput, editorEl, imageRow);
   textarea.parentNode.insertBefore(wrapper, textarea);
   textarea.classList.add("ao3ce-plain-textarea");
+  if (isPageDark()) textarea.classList.add("ao3ce-dark");
   textarea.style.display = "none";
 
   let trixReady = false;
