@@ -1,0 +1,89 @@
+ Add-on failed validation.
+
+    Prev Top Next 
+
+General Tests
+1 error, 6 warnings, 14 notices
+manifest.json was not found
+
+Error: No manifest.json was found at the root of the extension. The package file must be a ZIP of the extension's files themselves, not of the containing directory. See: https://mzl.la/2r2McKv for more on packaging.
+Unsafe assignment to innerHTML
+
+Warning: Due to both security and performance concerns, this may not be set using dynamic values which have not been adequately sanitized. This can lead to security issues or fairly serious performance degradation.
+ao3-rich-comment-editor/vendor/purify.min.js line 2 column 14955
+Unsafe assignment to innerHTML
+
+Warning: Due to both security and performance concerns, this may not be set using dynamic values which have not been adequately sanitized. This can lead to security issues or fairly serious performance degradation.
+ao3-rich-comment-editor/vendor/trix.js line 2697 column 11
+Unsafe assignment to innerHTML
+
+Warning: Due to both security and performance concerns, this may not be set using dynamic values which have not been adequately sanitized. This can lead to security issues or fairly serious performance degradation.
+ao3-rich-comment-editor/vendor/trix.js line 3158 column 11
+Unsafe assignment to innerHTML
+
+Warning: Due to both security and performance concerns, this may not be set using dynamic values which have not been adequately sanitized. This can lead to security issues or fairly serious performance degradation.
+ao3-rich-comment-editor/vendor/trix.js line 3252 column 7
+Unsafe assignment to innerHTML
+
+Warning: Due to both security and performance concerns, this may not be set using dynamic values which have not been adequately sanitized. This can lead to security issues or fairly serious performance degradation.
+ao3-rich-comment-editor/vendor/trix.js line 3354 column 5
+Unsafe assignment to innerHTML
+
+Warning: Due to both security and performance concerns, this may not be set using dynamic values which have not been adequately sanitized. This can lead to security issues or fairly serious performance degradation.
+ao3-rich-comment-editor/vendor/trix.js line 13398 column 9
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/pre-applypatch.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/pre-commit.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/prepare-commit-msg.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/fsmonitor-watchman.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/commit-msg.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/post-update.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/update.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/push-to-checkout.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/pre-merge-commit.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/pre-push.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/pre-receive.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/applypatch-msg.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/sendemail-validate.sample
+Flagged file type found
+
+Warning: Files whose names end with flagged extensions have been found in the add-on. The extension of these files are flagged because they usually identify binary components. Please see https://bit.ly/review-policy for more information on the binary content review process.
+ao3-rich-comment-editor/.git/hooks/pre-rebase.sample

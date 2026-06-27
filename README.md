@@ -49,21 +49,40 @@ Matches AO3's own allowed tags: `<b>`, `<i>`, `<u>`, `<em>`, `<strong>`, `<a>`, 
 
 ## Development
 
-No build step — this is a plain JS extension. Edit files directly and reload.
+### Setup
 
-**Reload after changes:**
-- Chrome: go to `chrome://extensions` → click the refresh icon on the extension card, then hard-reload the AO3 tab
-- Firefox: go to `about:debugging` → click **Reload**
+```bash
+npm install
+```
 
-**Key files:**
+### Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run lint` | Validate the extension with web-ext |
+| `npm run build` | Package into a submission-ready ZIP in `web-ext-artifacts/` |
+| `npm run run:firefox` | Load the extension in Firefox for live testing |
+
+### Reloading after changes
+
+- **Chrome:** go to `chrome://extensions` → click the refresh icon on the extension card, then hard-reload the AO3 tab
+- **Firefox:** `npm run run:firefox` auto-reloads on file changes, or go to `about:debugging` → click **Reload**
+
+### Key files
+
 - [`content/content.js`](content/content.js) — all injection logic: Trix setup, Rich/Plain toggle, sanitizer, AJAX reply box detection
 - [`content/content.css`](content/content.css) — toggle button styles and Trix overrides scoped to AO3
 
-**Vendored libraries** (no npm, no bundler):
+### Vendored libraries
+
+No bundler — libraries are checked in directly to `vendor/`:
+
 - [Trix 2.1.19](https://trix-editor.org/) — drop the new `trix.js` + `trix.css` into `vendor/` to upgrade
 - [DOMPurify 3.1.6](https://github.com/cure53/DOMPurify) — replace `vendor/purify.min.js` to upgrade
 
-**Testing manually:** load an AO3 work page, leave a comment, click **Reply** on an existing comment to confirm AJAX reply boxes also pick up the editor.
+### Testing manually
+
+Load an AO3 work page, leave a comment, click **Reply** on an existing comment to confirm AJAX reply boxes also pick up the editor.
 
 ---
 
@@ -71,16 +90,18 @@ No build step — this is a plain JS extension. Edit files directly and reload.
 
 ```
 AO3-Rich-Comment-Editor/
-├── manifest.json        # MV3 manifest (Chrome + Firefox compatible)
+├── manifest.json           # MV3 manifest (Chrome + Firefox compatible)
+├── package.json            # Dev tooling (web-ext)
+├── .web-ext-config.mjs     # web-ext ignore rules (excludes node_modules, .git, etc.)
 ├── content/
-│   ├── content.js       # Injection logic, Trix setup, sanitizer, toggle
-│   └── content.css      # Toggle button styles, Trix overrides
+│   ├── content.js          # Injection logic, Trix setup, sanitizer, toggle
+│   └── content.css         # Toggle button styles, Trix overrides
 ├── vendor/
-│   ├── trix.js          # Trix 2.1.19 (bundled locally, no CDN)
-│   ├── trix.css         # Trix default styles
-│   └── purify.min.js    # DOMPurify 3.1.6
+│   ├── trix.js             # Trix 2.1.19 (bundled locally, no CDN)
+│   ├── trix.css            # Trix default styles
+│   └── purify.min.js       # DOMPurify 3.1.6
 └── icons/
-    └── icon-48.png      # Art by @sunsetfoam (Abstraum / Traum)
+    └── icon-48.png         # Art by @sunsetfoam (Abstraum / Traum)
 ```
 
 ## Credits

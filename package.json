@@ -1,0 +1,14 @@
+{
+  "name": "ao3-rich-comment-editor",
+  "version": "1.0.0",
+  "description": "Format AO3 comments with rich text editing",
+  "private": true,
+  "scripts": {
+    "lint": "web-ext lint",
+    "build": "web-ext build",
+    "run:firefox": "web-ext run --target firefox-desktop"
+  },
+  "devDependencies": {
+    "web-ext": "^10.0.0"
+  }
+}
