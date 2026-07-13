@@ -1,0 +1,17 @@
+{
+  "version": {
+    "license": "MIT",
+    "release_notes": {
+      "en-US": "Resubmitted to AMO on the listed channel for public store distribution. Version 1.0.1 was signed as unlisted by mistake and never appeared on the public listing. No functional changes from 1.0.1."
+    },
+    "approval_notes": "This is the first submission to the listed/public AMO channel. Version 1.0.1 was previously signed on the unlisted channel by mistake and never went through public review — 1.0.2 has no functional changes from 1.0.1, it's the same code resubmitted correctly. Please review it as if reviewing the full extension for the first time.\n\nWHAT THIS EXTENSION DOES\nAdds a Rich/Plain WYSIWYG toggle above every AO3 (archiveofourown.org) comment box, matching the toggle authors already get in the work editor. Only active on archiveofourown.org (see host_permissions).\n\nTESTING STEPS\n1. Load any AO3 work page, e.g. https://archiveofourown.org/works/86984576/chapters/230309206#workskin (any fic works)\n2. Scroll to the comment form at the bottom — a Rich/Plain toggle and formatting toolbar appear above the textarea\n3. In Rich mode, try each toolbar control: bold, italic, underline, strikethrough, headings h1–h6, blockquote, ordered/unordered lists, links, and \"Clear formatting\"\n4. Toggle to Plain — confirm the raw HTML textarea shows the same content as valid AO3-allowed HTML\n5. Submit a comment and confirm formatting renders correctly on the page afterward\n6. Click Reply on an existing comment to confirm the editor loads correctly in the AJAX-injected reply box too\n7. Resize the browser below 600px width to confirm the mobile-friendly toolbar layout\n8. Toggle system/browser dark mode (or view a fic using the Reversi AO3 skin) and confirm the toolbar and editor adapt\n\nNo account/login is needed to view the comment form; posting a comment requires a free AO3 account.\n\nTHIRD-PARTY CODE\nThe only vendored library is Squire 2.3.2 (https://github.com/fastmail/Squire, MIT license), included unminified as vendor/squire.js so it can be read directly. One 3-line patch is applied (vendor/squire-no-innerhtml.patch, applied via npm run vendor) that replaces Squire's only dynamic innerHTML assignment with DOMParser + replaceChildren — behavior is identical, it only removes a lint warning. To verify the vendored file against upstream: npm install, then diff node_modules/squire-rte/dist/squire-raw.js against vendor/squire.js — the only difference is that 3-line patch.\n\nSANITIZATION\nAll HTML passes through a first-party allowlist sanitizer (content/sanitizer.js, loaded before content/content.js) before it's written to the AO3 comment textarea. It restricts output to AO3's own allowed tags/attributes, strips anything else, and only allows http(s) URLs in href/src — no first-party code assigns to innerHTML. This runs on initial load, on the Rich/Plain toggle, on paste, and on every edit.\n\nFull technical detail is also documented in REVIEWER_NOTES.md at the repo root: https://github.com/ninineen/AO3-Rich-Comment-Editor/blob/main/REVIEWER_NOTES.md\n\nweb-ext lint reports 0 errors, 0 warnings, 0 notices."
+  },
+  "categories": { "firefox": ["appearance", "social-communication"] },
+  "summary": {
+    "en-US": "Format AO3 comments with bold, italic, links, lists, and more. Adds the same Rich/Plain(HTML) editor toggle that authors get, now for every commenter."
+  },
+  "contributions_url": "https://ko-fi.com/ninineen",
+  "homepage": {
+    "en-US": "https://github.com/ninineen/AO3-Rich-Comment-Editor"
+  }
+}

@@ -110,28 +110,7 @@ This installs dependencies, copies vendored libraries into `vendor/`, lints, and
 
 ### Releasing a new version
 
-`npm run release` lints, builds, and signs the extension for the **unlisted** AMO channel: automated validation only, no public listing. It produces a permanent `.xpi` that installs in any Firefox via `about:addons` → gear icon → **Install Add-on From File**.
-
-**One-time setup:** create a `.env` file in the project root (already git-ignored) with your [AMO API credentials](https://addons.mozilla.org/developers/addon/api/key/):
-```
-WEB_EXT_API_KEY=user:XXXXXXX
-WEB_EXT_API_SECRET=YOUR_JWT_SECRET
-```
-
-**Every release:**
-
-1. Make sure `CHANGELOG.md` has an `[Unreleased]` section describing what changed. If it doesn't, add one before you forget what you did.
-2. Decide the new version number (semver: patch for fixes, minor for new features, major for breaking changes).
-3. Bump the version in **both** `manifest.json` and `package.json`. They should always match, and AMO rejects a signing request that reuses a version number that's already been submitted.
-4. Rename `CHANGELOG.md`'s `[Unreleased]` header to `[<new version>] <today's date>` (match the existing entries' format), and add a fresh empty `[Unreleased]` section above it for next time.
-5. Commit the version bump + changelog update (e.g. `chore(release): bump to 1.0.1`).
-6. Run:
-   ```bash
-   npm run release
-   ```
-7. Once signing succeeds, the signed `.xpi` lands in `web-ext-artifacts/`.
-8. Tag the release commit: `git tag v<new version>` then `git push origin v<new version>` (or push all tags with `git push --tags`).
-9. Go to [GitHub Releases](https://github.com/ninineen/AO3-Rich-Comment-Editor/releases) → **Draft a new release** → pick the tag you just pushed → paste in the relevant `CHANGELOG.md` entry as the release notes → attach the `.xpi` from `web-ext-artifacts/` → **Publish release**.
+See [`RELEASING.md`](RELEASING.md) for the full release checklist (version bump, changelog, AMO metadata, signing, tagging, GitHub release).
 
 ### Key files
 
@@ -163,6 +142,7 @@ AO3-Rich-Comment-Editor/
 ├── manifest.json           # MV3 manifest (Chrome + Firefox compatible)
 ├── package.json            # Dev tooling (web-ext, jest)
 ├── .web-ext-config.mjs     # web-ext ignore rules (keeps dev files out of the XPI)
+├── amo-metadata.json       # AMO listing metadata for `npm run release` (see RELEASING.md)
 ├── jest.config.js          # Jest (jsdom) test config
 ├── content/
 │   ├── content.js          # Injection logic, Squire setup, toolbar, Rich/Plain toggle
@@ -175,8 +155,11 @@ AO3-Rich-Comment-Editor/
 │   ├── content.test.js     # Unit tests for the content script
 │   ├── sanitizer.test.js   # Unit tests for the sanitizer
 │   └── fixtures/           # Test-only HTML fixtures
-└── icons/
-    └── icon-48.png         # Art by @sunsetfoam (Abstraum / Traum)
+├── icons/
+│   ├── icon-48.png         # Art by @sunsetfoam (Abstraum / Traum)
+│   └── icon-128.png
+└── screenshots/
+    └── before-after.png    # Before/after shown at the top of this README
 ```
 
 ## 🎨 Credits

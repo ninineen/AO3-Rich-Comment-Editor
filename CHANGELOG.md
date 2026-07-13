@@ -4,6 +4,11 @@ All notable changes to AO3 Rich Comment Editor are documented here.
 
 ## [Unreleased]
 
+## [1.0.2] — 2026-07-13
+
+### Other
+- Resubmitted to AMO on the listed channel for public store distribution (1.0.1 was signed as unlisted by mistake and never appeared on the public listing); no functional changes
+
 ## [1.0.1] — 2026-07-13
 
 ### Features
