@@ -2,6 +2,8 @@
 
 A browser extension that adds a WYSIWYG rich text editor to AO3 comment boxes: the same toggle between **Rich** and **Plain** modes that authors get in the work editor, now for commenters too.
 
+![Before and after: a plain AO3 comment textarea, versus the same box with the extension installed showing a Rich/Plain toggle and a formatting toolbar](screenshots/before-after.png)
+
 ---
 
 ### 🐛 Found a bug?
