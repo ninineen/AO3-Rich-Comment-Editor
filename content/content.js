@@ -317,3 +317,17 @@ scanAndInject();
 
 const observer = new MutationObserver(() => scanAndInject());
 observer.observe(document.body, { childList: true, subtree: true });
+
+// CommonJS export guard so Jest can unit-test this file;
+// in the extension this file runs as a plain content script.
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    isPageDark,
+    makeButton,
+    makeGroup,
+    toggleHeading,
+    injectEditor,
+    scanAndInject,
+    observer,
+  };
+}
