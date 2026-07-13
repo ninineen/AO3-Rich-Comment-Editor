@@ -1,16 +1,21 @@
+// Keeps dev-only files out of the packaged XPI. The shipped add-on should
+// contain only: manifest.json, content/ (js + css), vendor/squire.js, icons/.
 export default {
   ignoreFiles: [
     ".git/**",
+    ".gitignore",
     ".web-ext-config.mjs",
     "package.json",
     "package-lock.json",
     "node_modules/**",
-    "README.md",
-    "fix.txt",
     "web-ext-artifacts/**",
-    "content/*.test.js",
+    "tests",
+    "tests/**",
     "jest.config.js",
-    "coverage/**",
+    "README.md",
+    "CHANGELOG.md",
+    "REVIEWER_NOTES.md",
+    "vendor/squire-no-innerhtml.patch",
     "**/*.tmp.*",
   ],
 };

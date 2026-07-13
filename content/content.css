@@ -21,6 +21,10 @@
 
 /* ── Dark mode tokens ───────────────────────────────────────────────────── */
 
+/* The next two blocks are intentionally identical: a media query can't
+   express "AO3 skin is dark" (e.g. Reversi on a light-mode OS), so JS adds
+   .ao3ce-dark for that case. Keep both blocks in sync when editing. */
+
 /* System dark mode */
 @media (prefers-color-scheme: dark) {
   .ao3ce-wrapper {

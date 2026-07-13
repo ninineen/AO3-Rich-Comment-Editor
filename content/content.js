@@ -2,6 +2,34 @@
    Sanitizer functions (sanitizeToFragment, sanitizeToString) come from
    content/sanitizer.js, loaded before this file per manifest.json. */
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Configuration
+// ─────────────────────────────────────────────────────────────────────────────
+
+// The one piece of AO3 page coupling: every comment box (top-level, reply,
+// edit) is a textarea whose id starts with this prefix.
+const COMMENT_TEXTAREA_SELECTOR = "textarea[id^='comment_content_for']";
+
+// Class names — keep in sync with content/content.css.
+const CLS = {
+  wrapper: "ao3ce-wrapper",
+  dark: "ao3ce-dark",
+  toggleBar: "ao3ce-toggle",
+  viewBtn: "ao3ce-btn",
+  viewBtnActive: "ao3ce-btn--active",
+  toolbar: "ao3ce-toolbar",
+  editor: "ao3ce-editor",
+  tool: "ao3ce-tool",
+  toolMono: "ao3ce-tool--mono",
+  toolActive: "ao3ce-tool--active",
+  headingsGroup: "ao3ce-headings-group",
+  headingBtn: "ao3ce-heading-btn",
+  imageBtn: "ao3ce-image-btn",
+  urlRow: "ao3ce-image-row",
+  urlHint: "ao3ce-image-hint",
+  plainTextarea: "ao3ce-plain-textarea",
+};
+
 // Inline toggles handled natively by Squire: [label, tag, title, method suffix]
 const NATIVE_BUTTONS = [
   ["B",  "B",   "Bold (b)",          "Bold"],
@@ -20,13 +48,23 @@ const EXTRA_BUTTONS = [
   ["tt",  "TT",    "Teletype (tt)"],
 ];
 
+const IMAGE_HINT = "Must be a direct image link ending in .jpg, .jpeg, .png, or .gif — hosted on a permanent host (Imgur, postimages, etc.). Discord and Tumblr links expire.";
+const LINK_HINT = "Select text first to turn it into a link, or the URL itself is inserted.";
+
+// A background darker than this average luminance counts as a dark site skin.
+const DARK_LUMINANCE_THRESHOLD = 128;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Small helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
 function isPageDark() {
   const bg = getComputedStyle(document.body).backgroundColor;
-  // parse rgb(r, g, b) and check luminance
   const m = bg.match(/\d+/g);
   if (!m) return false;
   const [r, g, b] = m.map(Number);
-  return (0.299 * r + 0.587 * g + 0.114 * b) < 128;
+  // Rec. 601 luma coefficients
+  return (0.299 * r + 0.587 * g + 0.114 * b) < DARK_LUMINANCE_THRESHOLD;
 }
 
 function makeButton(label, title, className) {
@@ -45,6 +83,16 @@ function makeGroup(className) {
   const group = document.createElement("span");
   group.className = "ao3ce-tool-group" + (className ? " " + className : "");
   return group;
+}
+
+// Wire a toolbar button as a format toggle: remove the format if it's already
+// applied, apply it otherwise, then return focus to the editor so the user's
+// selection is kept.
+function wireToggle(btn, squire, isActive, apply, remove) {
+  btn.addEventListener("click", () => {
+    isActive() ? remove() : apply();
+    squire.focus();
+  });
 }
 
 // Toggle the selected blocks to/from <hN>.
@@ -66,164 +114,164 @@ function toggleHeading(squire, level) {
   squire.focus();
 }
 
-function injectEditor(textarea) {
-  // Check the DOM itself, not an in-memory flag: a WeakSet only survives for
-  // the lifetime of one script execution, so it can't detect a wrapper left
-  // over from a previous injection (e.g. an extension reload into an
-  // already-open page during development).
-  if (textarea.previousElementSibling?.classList.contains("ao3ce-wrapper")) return;
+// ─────────────────────────────────────────────────────────────────────────────
+// UI builders — each returns its root element plus the handles the caller needs
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "ao3ce-wrapper" + (isPageDark() ? " ao3ce-dark" : "");
-
+// The Rich / Plain (HTML) view switcher above the toolbar.
+function buildToggleBar() {
   const toggleBar = document.createElement("div");
-  toggleBar.className = "ao3ce-toggle";
+  toggleBar.className = CLS.toggleBar;
 
   const richBtn = document.createElement("button");
   richBtn.type = "button";
   richBtn.textContent = "Rich";
   richBtn.title = "Rich text editor";
-  richBtn.className = "ao3ce-btn ao3ce-btn--active";
+  richBtn.className = CLS.viewBtn + " " + CLS.viewBtnActive;
 
   const plainBtn = document.createElement("button");
   plainBtn.type = "button";
   plainBtn.textContent = "Plain (HTML)";
   plainBtn.title = "Edit the raw HTML by hand";
-  plainBtn.className = "ao3ce-btn";
+  plainBtn.className = CLS.viewBtn;
 
   toggleBar.append(richBtn, plainBtn);
+  return { toggleBar, richBtn, plainBtn };
+}
 
-  // ── Toolbar ──
+// The formatting toolbar: inline toggles, h1–h6, block formats, link/image.
+function buildToolbar(squire) {
   const toolbar = document.createElement("div");
-  toolbar.className = "ao3ce-toolbar";
+  toolbar.className = CLS.toolbar;
 
-  const editorEl = document.createElement("div");
-  editorEl.className = "ao3ce-editor";
+  // [button, isActive] pairs; isActive() decides the highlight for each button
+  // as the selection moves, so the mapping lives in one place per button.
+  const trackedButtons = [];
+  function track(btn, isActive) {
+    trackedButtons.push([btn, isActive]);
+  }
 
-  const squire = new Squire(editorEl, {
-    blockTag: "P",
-    sanitizeToDOMFragment: sanitizeToFragment,
-  });
-
-  const inlineButtons = []; // [button, tag] pairs for active-state updates
-
+  // ── Inline formats (b, i, u, s, sup, sub, ins, small, big, tt) ──
   const inlineGroup = makeGroup();
   for (const [label, tag, title, method] of NATIVE_BUTTONS) {
-    const btn = makeButton(label, title, "ao3ce-tool");
-    btn.addEventListener("click", () => {
-      squire.hasFormat(tag) ? squire["remove" + method]() : squire[method.toLowerCase()]();
-      squire.focus();
-    });
-    inlineButtons.push([btn, tag]);
+    const btn = makeButton(label, title, CLS.tool);
+    const isActive = () => squire.hasFormat(tag);
+    wireToggle(btn, squire, isActive,
+      () => squire[method.toLowerCase()](),
+      () => squire["remove" + method]());
+    track(btn, isActive);
     inlineGroup.append(btn);
   }
   for (const [label, tag, title] of EXTRA_BUTTONS) {
-    const btn = makeButton(label, title, "ao3ce-tool ao3ce-tool--mono");
-    btn.addEventListener("click", () => {
-      squire.hasFormat(tag)
-        ? squire.changeFormat(null, { tag })
-        : squire.changeFormat({ tag }, null);
-      squire.focus();
-    });
-    inlineButtons.push([btn, tag]);
+    const btn = makeButton(label, title, CLS.tool + " " + CLS.toolMono);
+    const isActive = () => squire.hasFormat(tag);
+    wireToggle(btn, squire, isActive,
+      () => squire.changeFormat({ tag }, null),
+      () => squire.changeFormat(null, { tag }));
+    track(btn, isActive);
     inlineGroup.append(btn);
   }
 
-  // h1–h6 in a compact grid group
-  const headingsGroup = makeGroup("ao3ce-headings-group");
+  // ── Headings: h1–h6 in a compact grid group ──
+  const headingsGroup = makeGroup(CLS.headingsGroup);
   for (let n = 1; n <= 6; n++) {
-    const btn = makeButton("H" + n, "Heading " + n + " (h" + n + ")", "ao3ce-tool ao3ce-heading-btn");
+    const btn = makeButton("H" + n, "Heading " + n + " (h" + n + ")", CLS.tool + " " + CLS.headingBtn);
     btn.addEventListener("click", () => toggleHeading(squire, n));
     headingsGroup.append(btn);
   }
 
+  // ── Block formats: blockquote, code, lists ──
   const blockGroup = makeGroup();
 
-  const quoteBtn = makeButton("❝", "Blockquote (blockquote)", "ao3ce-tool");
-  quoteBtn.addEventListener("click", () => {
-    squire.hasFormat("BLOCKQUOTE") ? squire.decreaseQuoteLevel() : squire.increaseQuoteLevel();
-    squire.focus();
-  });
+  const quoteBtn = makeButton("❝", "Blockquote (blockquote)", CLS.tool);
+  const quoteActive = () => squire.hasFormat("BLOCKQUOTE");
+  wireToggle(quoteBtn, squire, quoteActive,
+    () => squire.increaseQuoteLevel(),
+    () => squire.decreaseQuoteLevel());
+  track(quoteBtn, quoteActive);
 
-  const codeBtn = makeButton("</>", "Code (code / pre)", "ao3ce-tool ao3ce-tool--mono");
+  // toggleCode handles both directions itself, so no wireToggle here.
+  const codeBtn = makeButton("</>", "Code (code / pre)", CLS.tool + " " + CLS.toolMono);
   codeBtn.addEventListener("click", () => {
     squire.toggleCode();
     squire.focus();
   });
+  track(codeBtn, () => squire.hasFormat("PRE") || squire.hasFormat("CODE"));
 
-  const ulBtn = makeButton("•—", "Bulleted list (ul)", "ao3ce-tool");
-  ulBtn.addEventListener("click", () => {
-    squire.hasFormat("UL") ? squire.removeList() : squire.makeUnorderedList();
-    squire.focus();
-  });
+  const ulBtn = makeButton("•—", "Bulleted list (ul)", CLS.tool);
+  const ulActive = () => squire.hasFormat("UL");
+  wireToggle(ulBtn, squire, ulActive,
+    () => squire.makeUnorderedList(),
+    () => squire.removeList());
+  track(ulBtn, ulActive);
 
-  const olBtn = makeButton("1.—", "Numbered list (ol)", "ao3ce-tool");
-  olBtn.addEventListener("click", () => {
-    squire.hasFormat("OL") ? squire.removeList() : squire.makeOrderedList();
-    squire.focus();
-  });
+  const olBtn = makeButton("1.—", "Numbered list (ol)", CLS.tool);
+  const olActive = () => squire.hasFormat("OL");
+  wireToggle(olBtn, squire, olActive,
+    () => squire.makeOrderedList(),
+    () => squire.removeList());
+  track(olBtn, olActive);
 
   blockGroup.append(quoteBtn, codeBtn, ulBtn, olBtn);
 
+  // ── Insert: link + image (open the shared URL row, wired by the caller) ──
   const insertGroup = makeGroup();
-  const linkBtn = makeButton("🔗", "Insert link by URL", "ao3ce-tool");
-  const imageBtn = makeButton("IMG", "Insert image by URL", "ao3ce-tool ao3ce-image-btn");
+  const linkBtn = makeButton("🔗", "Insert link by URL", CLS.tool);
+  const imageBtn = makeButton("IMG", "Insert image by URL", CLS.tool + " " + CLS.imageBtn);
   insertGroup.append(linkBtn, imageBtn);
 
   toolbar.append(inlineGroup, headingsGroup, blockGroup, insertGroup);
 
-  // highlight active inline formats as the selection moves
+  // highlight active formats as the selection moves
   function updateActiveStates() {
-    for (const [btn, tag] of inlineButtons) {
-      btn.classList.toggle("ao3ce-tool--active", squire.hasFormat(tag));
+    for (const [btn, isActive] of trackedButtons) {
+      btn.classList.toggle(CLS.toolActive, isActive());
     }
-    quoteBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("BLOCKQUOTE"));
-    ulBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("UL"));
-    olBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("OL"));
-    codeBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("PRE") || squire.hasFormat("CODE"));
   }
   squire.addEventListener("pathChange", updateActiveStates);
   squire.addEventListener("select", updateActiveStates);
 
-  // ── URL prompt row (shared by link + image buttons) ──
+  return { toolbar, linkBtn, imageBtn };
+}
+
+// The URL prompt row shared by the link and image buttons.
+function buildUrlRow(squire) {
   const urlRow = document.createElement("div");
-  urlRow.className = "ao3ce-image-row";
-  let urlRowMode = null; // "link" | "image"
+  urlRow.className = CLS.urlRow;
+  let mode = null; // "link" | "image"
 
   const urlInput = document.createElement("input");
   urlInput.type = "url";
 
-  const urlInsertBtn = document.createElement("button");
-  urlInsertBtn.type = "button";
-  urlInsertBtn.textContent = "Insert";
-  urlInsertBtn.title = "Insert (Enter)";
+  const insertBtn = document.createElement("button");
+  insertBtn.type = "button";
+  insertBtn.textContent = "Insert";
+  insertBtn.title = "Insert (Enter)";
 
-  const urlCancelBtn = document.createElement("button");
-  urlCancelBtn.type = "button";
-  urlCancelBtn.textContent = "Cancel";
-  urlCancelBtn.title = "Cancel (Esc)";
+  const cancelBtn = document.createElement("button");
+  cancelBtn.type = "button";
+  cancelBtn.textContent = "Cancel";
+  cancelBtn.title = "Cancel (Esc)";
 
   const unlinkBtn = document.createElement("button");
   unlinkBtn.type = "button";
   unlinkBtn.textContent = "Unlink";
   unlinkBtn.title = "Remove the link from the selected text";
 
-  const urlHint = document.createElement("small");
-  urlHint.className = "ao3ce-image-hint";
+  const hint = document.createElement("small");
+  hint.className = CLS.urlHint;
 
-  urlRow.append(urlInput, urlInsertBtn, unlinkBtn, urlCancelBtn, urlHint);
+  urlRow.append(urlInput, insertBtn, unlinkBtn, cancelBtn, hint);
 
-  const IMAGE_HINT = "Must be a direct image link ending in .jpg, .jpeg, .png, or .gif — hosted on a permanent host (Imgur, postimages, etc.). Discord and Tumblr links expire.";
-  const LINK_HINT = "Select text first to turn it into a link, or the URL itself is inserted.";
-
-  function openUrlRow(mode) {
-    if (urlRow.style.display === "flex" && urlRowMode === mode) {
+  // Clicking the same toolbar button again while open acts as a toggle.
+  function openUrlRow(newMode) {
+    if (urlRow.style.display === "flex" && mode === newMode) {
       closeUrlRow();
       return;
     }
-    urlRowMode = mode;
+    mode = newMode;
     urlInput.placeholder = mode === "image" ? "Image URL…" : "Link URL…";
-    urlHint.textContent = mode === "image" ? IMAGE_HINT : LINK_HINT;
+    hint.textContent = mode === "image" ? IMAGE_HINT : LINK_HINT;
     unlinkBtn.style.display = mode === "link" ? "" : "none";
     urlRow.style.display = "flex";
     urlInput.focus();
@@ -232,23 +280,13 @@ function injectEditor(textarea) {
   function closeUrlRow() {
     urlRow.style.display = "none";
     urlInput.value = "";
-    urlRowMode = null;
+    mode = null;
   }
 
-  linkBtn.addEventListener("click", () => openUrlRow("link"));
-  imageBtn.addEventListener("click", () => openUrlRow("image"));
-  urlCancelBtn.addEventListener("click", closeUrlRow);
-
-  unlinkBtn.addEventListener("click", () => {
-    squire.removeLink();
-    closeUrlRow();
-    squire.focus();
-  });
-
-  urlInsertBtn.addEventListener("click", () => {
+  insertBtn.addEventListener("click", () => {
     const url = urlInput.value.trim();
     if (!url) return;
-    if (urlRowMode === "image") {
+    if (mode === "image") {
       squire.insertImage(url, { alt: "" });
     } else {
       squire.makeLink(url);
@@ -257,15 +295,55 @@ function injectEditor(textarea) {
     squire.focus();
   });
 
-  urlInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); urlInsertBtn.click(); }
-    if (e.key === "Escape") urlCancelBtn.click();
+  unlinkBtn.addEventListener("click", () => {
+    squire.removeLink();
+    closeUrlRow();
+    squire.focus();
   });
+
+  cancelBtn.addEventListener("click", closeUrlRow);
+
+  urlInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); insertBtn.click(); }
+    if (e.key === "Escape") cancelBtn.click();
+  });
+
+  return { urlRow, openUrlRow, closeUrlRow };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Editor injection — orchestrates the builders around one AO3 comment textarea
+// ─────────────────────────────────────────────────────────────────────────────
+
+function injectEditor(textarea) {
+  // Check the DOM itself, not an in-memory flag: a WeakSet only survives for
+  // the lifetime of one script execution, so it can't detect a wrapper left
+  // over from a previous injection (e.g. an extension reload into an
+  // already-open page during development).
+  if (textarea.previousElementSibling?.classList.contains(CLS.wrapper)) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = CLS.wrapper + (isPageDark() ? " " + CLS.dark : "");
+
+  const editorEl = document.createElement("div");
+  editorEl.className = CLS.editor;
+
+  const squire = new Squire(editorEl, {
+    blockTag: "P",
+    sanitizeToDOMFragment: sanitizeToFragment,
+  });
+
+  const { toggleBar, richBtn, plainBtn } = buildToggleBar();
+  const { toolbar, linkBtn, imageBtn } = buildToolbar(squire);
+  const { urlRow, openUrlRow, closeUrlRow } = buildUrlRow(squire);
+
+  linkBtn.addEventListener("click", () => openUrlRow("link"));
+  imageBtn.addEventListener("click", () => openUrlRow("image"));
 
   wrapper.append(toggleBar, toolbar, editorEl, urlRow);
   textarea.parentNode.insertBefore(wrapper, textarea);
-  textarea.classList.add("ao3ce-plain-textarea");
-  if (isPageDark()) textarea.classList.add("ao3ce-dark");
+  textarea.classList.add(CLS.plainTextarea);
+  if (isPageDark()) textarea.classList.add(CLS.dark);
   textarea.style.display = "none";
 
   if (textarea.value.trim()) {
@@ -278,8 +356,8 @@ function injectEditor(textarea) {
   });
 
   function showRich() {
-    richBtn.classList.add("ao3ce-btn--active");
-    plainBtn.classList.remove("ao3ce-btn--active");
+    richBtn.classList.add(CLS.viewBtnActive);
+    plainBtn.classList.remove(CLS.viewBtnActive);
 
     // match height to what the plain textarea currently is
     editorEl.style.height = textarea.offsetHeight + "px";
@@ -292,8 +370,8 @@ function injectEditor(textarea) {
   }
 
   function showPlain() {
-    plainBtn.classList.add("ao3ce-btn--active");
-    richBtn.classList.remove("ao3ce-btn--active");
+    plainBtn.classList.add(CLS.viewBtnActive);
+    richBtn.classList.remove(CLS.viewBtnActive);
 
     // flush current editor content and match height to the editor area
     textarea.value = sanitizeToString(squire.getHTML());
@@ -309,12 +387,17 @@ function injectEditor(textarea) {
   plainBtn.addEventListener("click", showPlain);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Page scanning
+// ─────────────────────────────────────────────────────────────────────────────
+
 function scanAndInject() {
-  document.querySelectorAll("textarea[id^='comment_content_for']").forEach(injectEditor);
+  document.querySelectorAll(COMMENT_TEXTAREA_SELECTOR).forEach(injectEditor);
 }
 
 scanAndInject();
 
+// AO3 loads reply/edit comment forms via AJAX, so watch for new textareas.
 const observer = new MutationObserver(() => scanAndInject());
 observer.observe(document.body, { childList: true, subtree: true });
 
@@ -326,6 +409,9 @@ if (typeof module !== "undefined" && module.exports) {
     makeButton,
     makeGroup,
     toggleHeading,
+    buildToggleBar,
+    buildToolbar,
+    buildUrlRow,
     injectEditor,
     scanAndInject,
     observer,

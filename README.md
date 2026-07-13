@@ -88,8 +88,10 @@ This installs dependencies, copies vendored libraries into `vendor/`, lints, and
 
 ### Key files
 
-- [`content/content.js`](content/content.js): all injection logic, Squire setup, toolbar, Rich/Plain toggle, first-party sanitizer, AJAX reply box detection
+- [`content/content.js`](content/content.js): injection logic, Squire setup, toolbar, Rich/Plain toggle, AJAX reply box detection
+- [`content/sanitizer.js`](content/sanitizer.js): first-party allowlist sanitizer (loaded before `content.js`)
 - [`content/content.css`](content/content.css): toggle button, toolbar, and editor styles scoped to AO3
+- [`tests/`](tests/): Jest unit tests (jsdom) for the content script and sanitizer
 
 ### Vendored libraries
 
@@ -97,7 +99,7 @@ No bundler here: libraries are committed to `vendor/` so extension reviewers can
 
 - [Squire 2.3.2](https://github.com/fastmail/Squire) (`squire.js`): vendored unminified, with one documented 3-line patch (`vendor/squire-no-innerhtml.patch`) that removes its only dynamic `innerHTML` assignment. See `REVIEWER_NOTES.md` for details.
 
-Sanitization is first-party: a small allowlist tree-walker in `content/content.js` restricts output to AO3-allowed tags, attributes, and http(s) URLs.
+Sanitization is first-party: a small allowlist tree-walker in `content/sanitizer.js` restricts output to AO3-allowed tags, attributes, and http(s) URLs.
 
 To upgrade a library: bump its version in `package.json`, run `npm install`, then `npm run vendor`, and commit the updated `vendor/` files.
 
@@ -112,14 +114,20 @@ Load an AO3 work page, leave a comment, and click **Reply** on an existing comme
 ```
 AO3-Rich-Comment-Editor/
 ├── manifest.json           # MV3 manifest (Chrome + Firefox compatible)
-├── package.json            # Dev tooling (web-ext)
-├── .web-ext-config.mjs     # web-ext ignore rules (excludes node_modules, .git, etc.)
+├── package.json            # Dev tooling (web-ext, jest)
+├── .web-ext-config.mjs     # web-ext ignore rules (keeps dev files out of the XPI)
+├── jest.config.js          # Jest (jsdom) test config
 ├── content/
-│   ├── content.js          # Injection logic, Squire setup, sanitizer, toggle
+│   ├── content.js          # Injection logic, Squire setup, toolbar, Rich/Plain toggle
+│   ├── sanitizer.js        # First-party allowlist sanitizer (loaded before content.js)
 │   └── content.css         # Toggle, toolbar, and editor styles
 ├── vendor/
 │   ├── squire.js           # Squire 2.3.2 (bundled locally, no CDN, patched, see below)
 │   └── squire-no-innerhtml.patch  # 3-line patch applied by npm run vendor
+├── tests/
+│   ├── content.test.js     # Unit tests for the content script
+│   ├── sanitizer.test.js   # Unit tests for the sanitizer
+│   └── fixtures/           # Test-only HTML fixtures
 └── icons/
     └── icon-48.png         # Art by @sunsetfoam (Abstraum / Traum)
 ```

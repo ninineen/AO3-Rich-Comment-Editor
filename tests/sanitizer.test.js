@@ -159,7 +159,7 @@ describe("sanitizeToString", () => {
 
     test("survives the testcomment.html fixture, keeping AO3 tags", () => {
       const fixture = fs.readFileSync(
-        path.join(__dirname, "..", "content", "testcomment.html"),
+        path.join(__dirname, "fixtures", "testcomment.html"),
         "utf-8"
       );
       const out = sanitizeToString(fixture);

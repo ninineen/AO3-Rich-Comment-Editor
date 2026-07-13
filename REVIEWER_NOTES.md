@@ -30,7 +30,7 @@ diff /tmp/upstream.js vendor/squire.js   # shows only the 3-line patch above
 
 ## Sanitization
 
-All HTML is sanitized by a first-party allowlist tree-walker in `content/content.js` (`cleanNode` / `sanitizeToFragment` / `sanitizeToString`):
+All HTML is sanitized by a first-party allowlist tree-walker in `content/sanitizer.js` (`cleanNode` / `sanitizeToFragment` / `sanitizeToString`), loaded before `content/content.js` per the manifest:
 
 - elements not in AO3's allowed tag list are unwrapped (children kept) or, for `script`/`style`/etc., removed with their content
 - attributes not in AO3's allowed attribute list are stripped
