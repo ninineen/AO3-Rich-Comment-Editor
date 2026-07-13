@@ -4,6 +4,12 @@ A browser extension that adds a WYSIWYG rich text editor to AO3 comment boxes: t
 
 ---
 
+### 👩‍💻 About the developer
+
+Hi, I'm **NiniNeen**: a Senior Frontend Engineer by day with ten years of software dev experience under my belt, and an AO3 author/VTuber by night. This extension is hand-built and maintained by me, scratching my own itch as someone who reads (and writes) very long, very formatted fic comments. See `REVIEWER_NOTES.md` for exactly what's vendored, what's first-party, and how the sanitizer works. Nothing here is a black box.
+
+---
+
 ## 💌 Connect with me
 
 **Support this project:** [Buy me a coffee on Ko-fi](https://ko-fi.com/ninineen)

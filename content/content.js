@@ -337,6 +337,15 @@ function injectEditor(textarea) {
   const editorEl = document.createElement("div");
   editorEl.className = CLS.editor;
 
+  // AO3's inbox reply box is a draggable floating window (jQuery UI
+  // draggable). Its default `cancel` selector excludes <textarea>/<input>
+  // from starting a drag, but not a contenteditable <div> — so without this,
+  // every mousedown here is hijacked by the drag handler instead of placing
+  // a cursor, and typing never focuses the editor. stopPropagation keeps
+  // Squire's own same-element handling intact while blocking the event from
+  // reaching the draggable's ancestor-bound listener.
+  editorEl.addEventListener("mousedown", (e) => e.stopPropagation());
+
   const squire = new Squire(editorEl, {
     blockTag: "P",
     sanitizeToDOMFragment: sanitizeToFragment,
