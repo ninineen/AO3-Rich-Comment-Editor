@@ -126,9 +126,9 @@ function injectEditor(textarea) {
     inlineGroup.append(btn);
   }
 
-  // h2–h6 in a compact grid group
+  // h1–h6 in a compact grid group
   const headingsGroup = makeGroup("ao3ce-headings-group");
-  for (let n = 2; n <= 6; n++) {
+  for (let n = 1; n <= 6; n++) {
     const btn = makeButton("H" + n, "Heading " + n + " (h" + n + ")", "ao3ce-tool ao3ce-heading-btn");
     btn.addEventListener("click", () => toggleHeading(squire, n));
     headingsGroup.append(btn);
@@ -206,7 +206,7 @@ function injectEditor(textarea) {
 
   urlRow.append(urlInput, urlInsertBtn, unlinkBtn, urlCancelBtn, urlHint);
 
-  const IMAGE_HINT = "Must be a direct image link ending in .jpg, .jpeg, .png, or .gif — hosted on a permanent host (Imgur, Pillowfort, etc.). Discord and Tumblr links expire.";
+  const IMAGE_HINT = "Must be a direct image link ending in .jpg, .jpeg, .png, or .gif — hosted on a permanent host (Imgur, postimages, etc.). Discord and Tumblr links expire.";
   const LINK_HINT = "Select text first to turn it into a link, or the URL itself is inserted.";
 
   function openUrlRow(mode) {

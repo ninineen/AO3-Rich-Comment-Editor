@@ -48,20 +48,28 @@
   margin-bottom: 4px;
 }
 
-.ao3ce-btn {
-  padding: 2px 12px 7px;
+/* .ao3ce-wrapper prefix bumps specificity to (0,2,N) so this reliably
+   beats AO3's own button/element rules without needing !important. */
+.ao3ce-wrapper .ao3ce-btn {
+  appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+  display: inline-block;
+  height: auto;
+  overflow: visible;
+  padding: 6px 14px;
   font-size: 0.85em;
   background: var(--ao3ce-bg-btn);
   border: 1px solid var(--ao3ce-border);
   cursor: pointer;
   color: var(--ao3ce-text);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
-.ao3ce-btn:first-child { border-radius: 3px 0 0 3px; }
-.ao3ce-btn:last-child  { border-radius: 0 3px 3px 0; border-left: none; }
+.ao3ce-wrapper .ao3ce-btn:first-child { border-radius: 3px 0 0 3px; }
+.ao3ce-wrapper .ao3ce-btn:last-child  { border-radius: 0 3px 3px 0; border-left: none; }
 
-.ao3ce-btn--active {
+.ao3ce-wrapper .ao3ce-btn--active {
   background: var(--ao3ce-red);
   color: #fff;
   border-color: var(--ao3ce-red-dark);
@@ -93,15 +101,22 @@
 }
 
 .ao3ce-tool {
+  appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
   border-left: 1px solid var(--ao3ce-border-sub);
   color: var(--ao3ce-text);
   cursor: pointer;
-  font-size: 0.85em;
-  line-height: 1.9;
-  padding: 0 0.55em;
-  min-width: 1.9em;
+  font-size: 0.95em;
+  line-height: 1;
+  padding: 0.4em 0.65em;
+  min-width: 2.2em;
+  min-height: 2.2em;
 }
 
 .ao3ce-tool:first-child { border-left: none; }
@@ -113,29 +128,43 @@
   font-weight: bold;
 }
 
-.ao3ce-tool--mono { font-family: var(--ao3ce-font-mono); font-size: 0.75em; }
+.ao3ce-tool--mono { font-family: var(--ao3ce-font-mono); font-size: 0.85em; }
 
-/* h2–h6 in a compact grid */
+/* h1–h6 in a compact grid */
 .ao3ce-headings-group {
   display: inline-flex;
   flex-wrap: wrap;
-  width: 4.5em;
+  width: 6.6em;
   align-self: center;
 }
 
 .ao3ce-heading-btn {
-  font-size: 0.65em;
+  appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75em;
   font-weight: bold;
   padding: 0;
   width: 33.33%;
   min-width: 0;
+  min-height: 2.2em;
   text-align: center;
-  line-height: 1.8;
+  line-height: 1;
+  background: transparent;
+  color: var(--ao3ce-text);
+  cursor: pointer;
   border: none;
+  border-left: 1px solid var(--ao3ce-border-sub);
   border-bottom: 1px solid var(--ao3ce-border-sub);
 }
 
+.ao3ce-heading-btn:nth-child(3n+1) { border-left: none; }
 .ao3ce-heading-btn:nth-child(n+4) { border-bottom: none; }
+
+.ao3ce-heading-btn:hover { background: var(--ao3ce-bg-btn); }
 
 /* ── URL prompt row (links + images) ────────────────────────────────────── */
 
@@ -163,8 +192,11 @@
 .ao3ce-image-row input::placeholder { color: var(--ao3ce-text-muted); }
 
 .ao3ce-image-row button {
-  padding: 3px 10px;
+  appearance: none;
+  -moz-appearance: none;
+  padding: 4px 10px;
   font-size: 0.85em;
+  line-height: 1.4;
   background: var(--ao3ce-bg-btn);
   border: 1px solid var(--ao3ce-border);
   border-radius: 3px;
@@ -226,43 +258,11 @@ textarea.ao3ce-plain-textarea.ao3ce-dark {
   color: #ccc;
 }
 
-/* ── AO3 CSS reset overrides ─────────────────────────────────────────────
-   AO3's reset uses element-only selectors (0,0,1 specificity).
-   .ao3ce-wrapper prefix gives us (0,2,N), winning cleanly without !important. */
-
-.ao3ce-wrapper .ao3ce-editor :is(h1, h2, h3, h4, h5, h6) {
-  font-weight: bold;
-  display: block;
-}
-.ao3ce-wrapper .ao3ce-editor h1 { font-size: 2em;    margin: 0.33em 0; }
-.ao3ce-wrapper .ao3ce-editor h2 { font-size: 1.5em;  margin: 0.42em 0; }
-.ao3ce-wrapper .ao3ce-editor h3 { font-size: 1.17em; margin: 0.5em  0; }
-.ao3ce-wrapper .ao3ce-editor h4 { font-size: 1em;    margin: 0.67em 0; }
-.ao3ce-wrapper .ao3ce-editor h5 { font-size: 0.83em; margin: 0.83em 0; }
-.ao3ce-wrapper .ao3ce-editor h6 { font-size: 0.75em; margin: 1em    0; }
-
-.ao3ce-wrapper .ao3ce-editor p { margin: 0 0 0.5em; }
-
-.ao3ce-wrapper .ao3ce-editor sup { vertical-align: super; font-size: 0.75em; }
-.ao3ce-wrapper .ao3ce-editor sub { vertical-align: sub;   font-size: 0.75em; }
-.ao3ce-wrapper .ao3ce-editor big   { font-size: 1.17em; }
-.ao3ce-wrapper .ao3ce-editor small { font-size: 0.83em; }
-
-.ao3ce-wrapper .ao3ce-editor b, .ao3ce-wrapper .ao3ce-editor strong { font-weight: bold; }
-.ao3ce-wrapper .ao3ce-editor i, .ao3ce-wrapper .ao3ce-editor em     { font-style: italic; }
-.ao3ce-wrapper .ao3ce-editor u, .ao3ce-wrapper .ao3ce-editor ins    { text-decoration: underline; }
-.ao3ce-wrapper .ao3ce-editor s, .ao3ce-wrapper .ao3ce-editor strike,
-.ao3ce-wrapper .ao3ce-editor del { text-decoration: line-through; }
-
-.ao3ce-wrapper .ao3ce-editor :is(code, tt, kbd, samp, pre) {
-  font-family: var(--ao3ce-font-mono);
-}
-
-.ao3ce-wrapper .ao3ce-editor blockquote {
-  border-left: 3px solid var(--ao3ce-border);
-  margin: 0.5em 0 0.5em 1em;
-  padding-left: 0.75em;
-}
+/* AO3 CSS reset overrides removed for now — seeing what the editor looks
+   like against AO3's own element-only reset before reintroducing any.
+   Lists needed reintroducing immediately: AO3 sets `list-style: none` on
+   ul/li site-wide, so bullets/numbers render invisible without this.
+   .ao3ce-wrapper prefix keeps specificity at (0,2,N) — no !important. */
 
 .ao3ce-wrapper .ao3ce-editor img { max-width: 100%; }
 
@@ -271,4 +271,4 @@ textarea.ao3ce-plain-textarea.ao3ce-dark {
 .ao3ce-wrapper .ao3ce-editor ol,
 .ao3ce-wrapper .ao3ce-editor ol li { list-style: decimal; }
 .ao3ce-wrapper .ao3ce-editor ul,
-.ao3ce-wrapper .ao3ce-editor ol   { padding-left: 1.5em; }
+.ao3ce-wrapper .ao3ce-editor ol   { padding-left: 1.5em; margin: 0 0 0.5em; }
