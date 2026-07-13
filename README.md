@@ -1,10 +1,10 @@
-# AO3 Rich Comment Editor
+# 🧩 AO3 Rich Comment Editor
 
-A browser extension that adds a WYSIWYG rich text editor to AO3 comment boxes — the same toggle between **Rich** and **Plain** modes that authors get in the work editor, but for commenters.
+A browser extension that adds a WYSIWYG rich text editor to AO3 comment boxes: the same toggle between **Rich** and **Plain** modes that authors get in the work editor, now for commenters too.
 
 ---
 
-## Connect with me
+## 💌 Connect with me
 
 **Support this project:** [Buy me a coffee on Ko-fi](https://ko-fi.com/ninineen)
 
@@ -20,34 +20,48 @@ I make AO3 skins and tools, write fanfic, stream on Twitch, and post fandom cont
 
 ---
 
-## What it does
+## ✨ What it does
 
 - Injects a Squire-based rich text editor above every comment textarea on AO3
-- **Rich mode** — format your comment with bold, italic, headers, lists, links, etc.
-- **Plain mode** — reveals the raw HTML textarea for hand-editing
-- Sanitizes output to AO3's allowed HTML tags and attributes before submitting
-- Works on top-level comment forms and reply boxes (including ones loaded via AJAX)
+- **Rich mode:** format your comment with bold, italic, headers, lists, links, and more
+- **Plain mode:** reveals the raw HTML textarea for hand-editing
+- Sanitizes output to AO3's allowed HTML tags and attributes before submitting, so nothing gets silently stripped after the fact
+- Works on top-level comment forms and reply boxes, including ones loaded via AJAX
 
-## Allowed HTML
+## 🧰 Tech Stack & Tools
 
-Matches AO3's own allowed tags: `<b>`, `<i>`, `<u>`, `<em>`, `<strong>`, `<a>`, `<blockquote>`, `<ul>`, `<ol>`, `<li>`, `<h1>`–`<h6>`, `<span>`, `<div>`, `<p>`, `<br>`, `<img>`, `<table>`, and more. Anything AO3 would strip is sanitized out before it reaches the textarea.
+<p align="left">
+  <img src="https://img.shields.io/badge/JavaScript-f7e1a0?style=flat-square&logo=javascript&logoColor=8a6d00" alt="JavaScript">
+  <img src="https://img.shields.io/badge/CSS3-663399?style=flat-square&logo=css3&logoColor=white" alt="CSS3">
+  <img src="https://img.shields.io/badge/WebExtension-ffccd5?style=flat-square&logo=firefoxbrowser&logoColor=cc5a71" alt="WebExtension">
+  <img src="https://img.shields.io/badge/Squire-2c3e50?style=flat-square&logoColor=white" alt="Squire">
+  <img src="https://img.shields.io/badge/Jest-C21325?style=flat-square&logo=jest&logoColor=white" alt="Jest">
+</p>
 
-## Installation (unpacked / developer mode)
+## 📋 Allowed HTML
+
+Matches AO3's own allowed tags: `<b>`, `<i>`, `<u>`, `<em>`, `<strong>`, `<a>`, `<blockquote>`, `<ul>`, `<ol>`, `<li>`, `<h1>`–`<h6>`, `<span>`, `<div>`, `<p>`, `<br>`, `<img>`, `<table>`, and more. Anything AO3 would strip is sanitized out before it ever reaches the textarea.
+
+---
+
+## 📥 Installation (unpacked / developer mode)
 
 ### Chrome / Edge
 1. Go to `chrome://extensions`
 2. Enable **Developer mode** (toggle, top right)
 3. Click **Load unpacked**
 4. Select the `AO3-Rich-Comment-Editor/` folder
-5. Navigate to any AO3 work page — the editor appears in the comment box
+5. Navigate to any AO3 work page: the editor appears in the comment box
 
 ### Firefox
 1. Go to `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on**
 3. Select `AO3-Rich-Comment-Editor/manifest.json`
-4. Note: temporary add-ons are removed when Firefox restarts; use [web-ext](https://extensionworkshop.com/documentation/develop/getting-started-with-web-ext/) for persistent dev installs
+4. Note: temporary add-ons are removed when Firefox restarts. Use [web-ext](https://extensionworkshop.com/documentation/develop/getting-started-with-web-ext/) for persistent dev installs
 
-## Development
+---
+
+## 🛠️ Development
 
 ### Setup
 
@@ -55,7 +69,7 @@ Matches AO3's own allowed tags: `<b>`, `<i>`, `<u>`, `<em>`, `<strong>`, `<a>`, 
 npm start
 ```
 
-This installs dependencies, copies vendored libraries into `vendor/`, lints, and builds in one step.
+This installs dependencies, copies vendored libraries into `vendor/`, lints, and builds, all in one step.
 
 ### Scripts
 
@@ -69,31 +83,31 @@ This installs dependencies, copies vendored libraries into `vendor/`, lints, and
 
 ### Reloading after changes
 
-- **Chrome:** go to `chrome://extensions` → click the refresh icon on the extension card, then hard-reload the AO3 tab
-- **Firefox:** `npm run run:firefox` auto-reloads on file changes, or go to `about:debugging` → click **Reload**
+- **Chrome:** go to `chrome://extensions`, click the refresh icon on the extension card, then hard-reload the AO3 tab
+- **Firefox:** `npm run run:firefox` auto-reloads on file changes, or go to `about:debugging` and click **Reload**
 
 ### Key files
 
-- [`content/content.js`](content/content.js) — all injection logic: Squire setup, toolbar, Rich/Plain toggle, first-party sanitizer, AJAX reply box detection
-- [`content/content.css`](content/content.css) — toggle button, toolbar, and editor styles scoped to AO3
+- [`content/content.js`](content/content.js): all injection logic, Squire setup, toolbar, Rich/Plain toggle, first-party sanitizer, AJAX reply box detection
+- [`content/content.css`](content/content.css): toggle button, toolbar, and editor styles scoped to AO3
 
 ### Vendored libraries
 
-No bundler — libraries are committed to `vendor/` so extension reviewers can read them directly. Versions are pinned in `package.json` and the files are generated via `npm run vendor`.
+No bundler here: libraries are committed to `vendor/` so extension reviewers can read them directly. Versions are pinned in `package.json`, and the files are generated via `npm run vendor`.
 
-- [Squire 2.3.2](https://github.com/fastmail/Squire) (`squire.js`) — vendored unminified, with one documented 3-line patch (`vendor/squire-no-innerhtml.patch`) that removes its only dynamic `innerHTML` assignment; see `REVIEWER_NOTES.md`
+- [Squire 2.3.2](https://github.com/fastmail/Squire) (`squire.js`): vendored unminified, with one documented 3-line patch (`vendor/squire-no-innerhtml.patch`) that removes its only dynamic `innerHTML` assignment. See `REVIEWER_NOTES.md` for details.
 
-Sanitization is first-party: a small allowlist tree-walker in `content/content.js` restricts output to AO3-allowed tags/attributes and http(s) URLs.
+Sanitization is first-party: a small allowlist tree-walker in `content/content.js` restricts output to AO3-allowed tags, attributes, and http(s) URLs.
 
-To upgrade a library: update its version in `package.json`, run `npm install`, then `npm run vendor`, and commit the updated `vendor/` files.
+To upgrade a library: bump its version in `package.json`, run `npm install`, then `npm run vendor`, and commit the updated `vendor/` files.
 
 ### Testing manually
 
-Load an AO3 work page, leave a comment, click **Reply** on an existing comment to confirm AJAX reply boxes also pick up the editor.
+Load an AO3 work page, leave a comment, and click **Reply** on an existing comment to confirm AJAX reply boxes pick up the editor too.
 
 ---
 
-## File structure
+## 📦 File structure
 
 ```
 AO3-Rich-Comment-Editor/
@@ -104,17 +118,18 @@ AO3-Rich-Comment-Editor/
 │   ├── content.js          # Injection logic, Squire setup, sanitizer, toggle
 │   └── content.css         # Toggle, toolbar, and editor styles
 ├── vendor/
-│   ├── squire.js           # Squire 2.3.2 (bundled locally, no CDN; patched, see below)
+│   ├── squire.js           # Squire 2.3.2 (bundled locally, no CDN, patched, see below)
 │   └── squire-no-innerhtml.patch  # 3-line patch applied by npm run vendor
 └── icons/
     └── icon-48.png         # Art by @sunsetfoam (Abstraum / Traum)
 ```
 
-## Credits
+## 🎨 Credits
 
-- Extension icon art by [@sunsetfoam](https://www.instagram.com/sunsetfoam) — reposted with credit as per their terms. Do not reuse for commercial or political purposes.
+- Extension icon art by [@sunsetfoam](https://www.instagram.com/sunsetfoam), reposted with credit as per their terms. Do not reuse for commercial or political purposes.
 
 ---
 
-<sub><sup><i>Un jour je serai de retour près de toi</i></sup></sub>
+<sub>💖 Made so commenters can leave just as unhinged and over-formatted a comment as the fic deserves.</sub>
 
+<sub><sup><i>Un jour je serai de retour près de toi</i></sup></sub>

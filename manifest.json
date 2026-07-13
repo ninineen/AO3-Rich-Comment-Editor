@@ -3,7 +3,7 @@
   "name": "AO3 Rich Comment Editor",
   "short_name": "AO3 Comment Editor",
   "version": "1.0.0",
-  "description": "Format AO3 comments with bold, italic, links, lists, and more. Adds the same Rich/Plain editor toggle that authors get — now for every commenter.",
+  "description": "Format AO3 comments with bold, italic, links, lists, and more. Adds the same Rich/Plain(HTML) editor toggle that authors get, now for every commenter.",
   "author": "ninineen",
   "homepage_url": "https://github.com/ninineen/AO3-Rich-Comment-Editor",
   "permissions": [],
@@ -23,7 +23,6 @@
       "css": [
         "content/content.css"
       ],
-      "world": "MAIN",
       "run_at": "document_idle"
     }
   ],
