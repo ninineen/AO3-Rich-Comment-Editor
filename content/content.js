@@ -220,7 +220,16 @@ function buildToolbar(squire) {
   const imageBtn = makeButton("IMG", "Insert image by URL", CLS.tool + " " + CLS.imageBtn);
   insertGroup.append(linkBtn, imageBtn);
 
-  toolbar.append(inlineGroup, headingsGroup, blockGroup, insertGroup);
+  // ── Clear formatting: strips the selection back to plain text ──
+  const clearGroup = makeGroup();
+  const clearBtn = makeButton("Clear", "Clear formatting", CLS.tool);
+  clearBtn.addEventListener("click", () => {
+    squire.removeAllFormatting();
+    squire.focus();
+  });
+  clearGroup.append(clearBtn);
+
+  toolbar.append(inlineGroup, headingsGroup, blockGroup, insertGroup, clearGroup);
 
   // highlight active formats as the selection moves
   function updateActiveStates() {

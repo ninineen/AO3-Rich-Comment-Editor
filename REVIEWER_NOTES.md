@@ -43,5 +43,5 @@ It is wired into Squire's `sanitizeToDOMFragment` config hook, so **all** HTML e
 
 No account is required to test basic functionality. To test:
 
-1. Go to https://archiveofourown.org/works/ and click any fanfic
+1. Go to https://archiveofourown.org/works/86984576/chapters/230309881
 2. Scroll to the bottom of the page — the WYSIWYG editor should appear in the comment box

@@ -145,12 +145,19 @@
   font-size: 1.05em;
 }
 
-/* h1–h6 in a compact grid */
+/* h1–h6 in a compact grid.
+   Dividers are drawn as the grid's own 1px gap (background peeking through)
+   rather than per-button borders — individually-sized flex items round their
+   own border-left/border-bottom to physical pixels independently, which on
+   high-DPR phone screens made some dividers render thicker than others. */
 .ao3ce-headings-group {
-  display: inline-flex;
-  flex-wrap: wrap;
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
   width: 6.6em;
   align-self: center;
+  background: var(--ao3ce-border-sub);
+  border: 1px solid var(--ao3ce-border-sub);
 }
 
 .ao3ce-heading-btn {
@@ -163,23 +170,39 @@
   font-size: 0.75em;
   font-weight: bold;
   padding: 0;
-  width: 33.33%;
   min-width: 0;
   min-height: 2.2em;
   text-align: center;
   line-height: 1;
-  background: transparent;
+  background: var(--ao3ce-bg-chrome);
   color: var(--ao3ce-text);
   cursor: pointer;
   border: none;
-  border-left: 1px solid var(--ao3ce-border-sub);
-  border-bottom: 1px solid var(--ao3ce-border-sub);
 }
 
-.ao3ce-heading-btn:nth-child(3n+1) { border-left: none; }
-.ao3ce-heading-btn:nth-child(n+4) { border-bottom: none; }
-
 .ao3ce-heading-btn:hover { background: var(--ao3ce-bg-btn); }
+
+/* Smaller touch targets on narrow (mobile) viewports — the desktop sizing
+   is generous for mouse precision, but wastes space and forces excess
+   wrapping on a phone-width toolbar. */
+@media (max-width: 600px) {
+  .ao3ce-tool {
+    padding: 0.25rem 0.4rem;
+    min-width: 1.7rem;
+    min-height: 1.7rem;
+    font-size: 0.8em;
+  }
+
+  .ao3ce-heading-btn {
+    min-height: 1.7em;
+    font-size: 0.65em;
+  }
+
+  .ao3ce-toolbar {
+    gap: 4px;
+    padding: 3px 4px;
+  }
+}
 
 /* ── URL prompt row (links + images) ────────────────────────────────────── */
 
@@ -258,7 +281,10 @@ textarea.ao3ce-plain-textarea {
   min-height: 8em;
   padding: 8px 10px;
   font-family: monospace;
-  font-size: 0.9em;
+  /* bumped above 1em: monospace renders visually smaller than the editor's
+     serif body copy at the same declared size (same issue as the toolbar's
+     mono buttons and the editor's code/pre blocks). */
+  font-size: 1.1em;
   border: 1px solid #aaa;
   border-radius: 0 3px 3px 3px;
   background: #fff;
