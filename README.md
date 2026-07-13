@@ -4,6 +4,14 @@ A browser extension that adds a WYSIWYG rich text editor to AO3 comment boxes: t
 
 ---
 
+### 🐛 Found a bug?
+
+Please let me know! The best way is to [open a GitHub Issue](https://github.com/ninineen/AO3-Rich-Comment-Editor/issues/new). It needs a (free) GitHub account, but it's the easiest way for me to track and actually fix things instead of a bug report getting lost in a DM somewhere. Screenshots and the URL of the page you were on help a ton.
+
+No GitHub account? No worries, you can still reach me through any of the links below and I'll take a look!
+
+---
+
 ### 👩‍💻 About the developer
 
 Hi, I'm **NiniNeen**: a Senior Frontend Engineer by day with ten years of software dev experience under my belt, and an AO3 author/VTuber by night. This extension is hand-built and maintained by me, scratching my own itch as someone who reads (and writes) very long, very formatted fic comments. See `REVIEWER_NOTES.md` for exactly what's vendored, what's first-party, and how the sanitizer works. Nothing here is a black box.
@@ -52,14 +60,14 @@ Matches AO3's own allowed tags: `<b>`, `<i>`, `<u>`, `<em>`, `<strong>`, `<a>`, 
 
 ## 📥 Installation
 
-**Firefox only** — Chrome/Edge support is not planned for now.
+**Firefox only.** Chrome/Edge support is not planned for now.
 
 ### Firefox (signed release build)
 1. Go to the [Releases page](https://github.com/ninineen/AO3-Rich-Comment-Editor/releases) and download the `.xpi` from the latest release
 2. Open Firefox and go to `about:addons`
 3. Click the gear icon (⚙️) near the top of the page
 4. Choose **Install Add-on From File...** and select the downloaded `.xpi`
-5. Confirm the install prompt — the editor now appears in AO3 comment boxes and persists across restarts
+5. Confirm the install prompt. The editor now appears in AO3 comment boxes and persists across restarts
 
 ## 🧑‍💻 Installation (unpacked / developer mode)
 
@@ -91,11 +99,37 @@ This installs dependencies, copies vendored libraries into `vendor/`, lints, and
 | `npm run build` | Package into a submission-ready ZIP in `web-ext-artifacts/` |
 | `npm run run:firefox` | Load the extension in Firefox for live testing |
 | `npm run run:mobile` | Load the extension in Firefox for Android (needs `adb`, device connected/paired) for live testing |
+| `npm run release` | Lint → build → sign for self-distribution (see below) |
 
 ### Reloading after changes
 
 - **Firefox:** `npm run run:firefox` auto-reloads on file changes, or go to `about:debugging` and click **Reload**
 - **Firefox for Android:** `npm run run:mobile` auto-reloads the same way, targeting a device connected via `adb` (USB or paired over Wi-Fi debugging)
+
+### Releasing a new version
+
+`npm run release` lints, builds, and signs the extension for the **unlisted** AMO channel: automated validation only, no public listing. It produces a permanent `.xpi` that installs in any Firefox via `about:addons` → gear icon → **Install Add-on From File**.
+
+**One-time setup:** create a `.env` file in the project root (already git-ignored) with your [AMO API credentials](https://addons.mozilla.org/developers/addon/api/key/):
+```
+WEB_EXT_API_KEY=user:XXXXXXX
+WEB_EXT_API_SECRET=YOUR_JWT_SECRET
+```
+
+**Every release:**
+
+1. Make sure `CHANGELOG.md` has an `[Unreleased]` section describing what changed. If it doesn't, add one before you forget what you did.
+2. Decide the new version number (semver: patch for fixes, minor for new features, major for breaking changes).
+3. Bump the version in **both** `manifest.json` and `package.json`. They should always match, and AMO rejects a signing request that reuses a version number that's already been submitted.
+4. Rename `CHANGELOG.md`'s `[Unreleased]` header to `[<new version>] <today's date>` (match the existing entries' format), and add a fresh empty `[Unreleased]` section above it for next time.
+5. Commit the version bump + changelog update (e.g. `chore(release): bump to 1.0.1`).
+6. Run:
+   ```bash
+   npm run release
+   ```
+7. Once signing succeeds, the signed `.xpi` lands in `web-ext-artifacts/`.
+8. Tag the release commit: `git tag v<new version>` then `git push origin v<new version>` (or push all tags with `git push --tags`).
+9. Go to [GitHub Releases](https://github.com/ninineen/AO3-Rich-Comment-Editor/releases) → **Draft a new release** → pick the tag you just pushed → paste in the relevant `CHANGELOG.md` entry as the release notes → attach the `.xpi` from `web-ext-artifacts/` → **Publish release**.
 
 ### Key files
 
