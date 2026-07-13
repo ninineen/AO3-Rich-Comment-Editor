@@ -1,0 +1,12 @@
+--- vendor/squire.js.orig	2026-07-12 20:36:36.609343482 +0200
++++ vendor/squire.js	2026-07-12 20:36:36.612258542 +0200
+@@ -2778,7 +2778,8 @@
+     }
+     _setRawHTML(html) {
+       const root = this._root;
+-      root.innerHTML = html;
++      const parsed = new DOMParser().parseFromString(html, "text/html");
++      root.replaceChildren(...parsed.body.childNodes);
+       let node = root;
+       const child = node.firstChild;
+       if (!child || child.nodeName === "BR") {

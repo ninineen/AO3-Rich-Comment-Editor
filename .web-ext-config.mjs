@@ -8,5 +8,8 @@ export default {
     "README.md",
     "fix.txt",
     "web-ext-artifacts/**",
+    "content/*.test.js",
+    "jest.config.js",
+    "coverage/**",
   ],
 };

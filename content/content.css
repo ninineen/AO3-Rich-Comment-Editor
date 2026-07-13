@@ -10,6 +10,7 @@
   --ao3ce-bg:         #fff;
   --ao3ce-bg-chrome:  color-mix(in srgb, var(--ao3ce-bg) 97%, #000);
   --ao3ce-bg-btn:     color-mix(in srgb, var(--ao3ce-bg) 95%, #000);
+  --ao3ce-bg-active:  color-mix(in srgb, var(--ao3ce-bg) 85%, #000);
   --ao3ce-text:       #333;
   --ao3ce-text-muted: color-mix(in srgb, var(--ao3ce-text) 60%, transparent);
   --ao3ce-font-body:  Georgia, "Times New Roman", serif;
@@ -26,6 +27,7 @@
     --ao3ce-border:     #444;
     --ao3ce-border-sub: #555;
     --ao3ce-bg:         #333;
+    --ao3ce-bg-active:  #3a3a3a;
     --ao3ce-text:       #ccc;
   }
 }
@@ -35,6 +37,7 @@
   --ao3ce-border:     #444;
   --ao3ce-border-sub: #555;
   --ao3ce-bg:         #333;
+  --ao3ce-bg-active:  #3a3a3a;
   --ao3ce-text:       #ccc;
 }
 
@@ -66,10 +69,14 @@
 
 /* ── Toolbar ────────────────────────────────────────────────────────────── */
 
-.ao3ce-wrapper trix-toolbar {
+.ao3ce-toolbar {
   position: sticky;
   top: 0;
   z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   border: 1px solid var(--ao3ce-border);
   border-radius: 3px 3px 0 0;
   border-bottom: 1px solid var(--ao3ce-border-sub);
@@ -77,51 +84,60 @@
   background: var(--ao3ce-bg-chrome);
 }
 
-.ao3ce-wrapper trix-toolbar [data-trix-action="attachFiles"],
-.ao3ce-wrapper trix-toolbar [data-trix-action="decreaseNestingLevel"],
-.ao3ce-wrapper trix-toolbar [data-trix-action="increaseNestingLevel"] {
-  display: none;
-}
-
-.ao3ce-wrapper trix-toolbar .ao3ce-image-btn {
+.ao3ce-tool-group {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1em;
-  padding: 0 0.4em;
-  border-bottom: none;
+  align-items: stretch;
+  border: 1px solid var(--ao3ce-border-sub);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.ao3ce-wrapper trix-toolbar .ao3ce-headings-group {
+.ao3ce-tool {
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--ao3ce-border-sub);
+  color: var(--ao3ce-text);
+  cursor: pointer;
+  font-size: 0.85em;
+  line-height: 1.9;
+  padding: 0 0.55em;
+  min-width: 1.9em;
+}
+
+.ao3ce-tool:first-child { border-left: none; }
+
+.ao3ce-tool:hover { background: var(--ao3ce-bg-btn); }
+
+.ao3ce-tool--active {
+  background: var(--ao3ce-bg-active);
+  font-weight: bold;
+}
+
+.ao3ce-tool--mono { font-family: var(--ao3ce-font-mono); font-size: 0.75em; }
+
+/* h2–h6 in a compact grid */
+.ao3ce-headings-group {
   display: inline-flex;
   flex-wrap: wrap;
   width: 4.5em;
   align-self: center;
 }
 
-.ao3ce-wrapper trix-toolbar .ao3ce-heading-btn {
+.ao3ce-heading-btn {
   font-size: 0.65em;
   font-weight: bold;
   padding: 0;
   width: 33.33%;
+  min-width: 0;
   text-align: center;
   line-height: 1.8;
   border: none;
   border-bottom: 1px solid var(--ao3ce-border-sub);
 }
 
-.ao3ce-wrapper trix-toolbar .ao3ce-heading-btn:nth-child(n+4) {
-  border-bottom: none;
-}
+.ao3ce-heading-btn:nth-child(n+4) { border-bottom: none; }
 
-.ao3ce-wrapper trix-toolbar .ao3ce-extra-tags .trix-button {
-  font-size: 0.7em;
-  padding: 0 0.4em;
-  font-family: var(--ao3ce-font-mono);
-  border: none;
-}
-
-/* ── Image URL row ──────────────────────────────────────────────────────── */
+/* ── URL prompt row (links + images) ────────────────────────────────────── */
 
 .ao3ce-image-row {
   display: none;
@@ -168,7 +184,7 @@
 
 /* ── Rich editor ────────────────────────────────────────────────────────── */
 
-.ao3ce-wrapper trix-editor {
+.ao3ce-editor {
   border: 1px solid var(--ao3ce-border);
   border-top: none;
   border-radius: 0 0 3px 3px;
@@ -181,7 +197,13 @@
   padding: 8px 10px;
   font-family: var(--ao3ce-font-body);
   font-size: 1em;
+  outline: none;
+  cursor: text;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
+
+.ao3ce-editor:focus { border-color: var(--ao3ce-red); border-top: none; }
 
 textarea.ao3ce-plain-textarea {
   display: block;
@@ -206,59 +228,47 @@ textarea.ao3ce-plain-textarea.ao3ce-dark {
 
 /* ── AO3 CSS reset overrides ─────────────────────────────────────────────
    AO3's reset uses element-only selectors (0,0,1 specificity).
-   .ao3ce-wrapper prefix gives us (0,1,N), winning cleanly without !important. */
+   .ao3ce-wrapper prefix gives us (0,2,N), winning cleanly without !important. */
 
-.ao3ce-wrapper trix-editor :is(h1, h2, h3, h4, h5, h6) {
+.ao3ce-wrapper .ao3ce-editor :is(h1, h2, h3, h4, h5, h6) {
   font-weight: bold;
   display: block;
 }
-.ao3ce-wrapper trix-editor h1 { font-size: 2em;    margin: 0.33em 0; }
-.ao3ce-wrapper trix-editor h2 { font-size: 1.5em;  margin: 0.42em 0; }
-.ao3ce-wrapper trix-editor h3 { font-size: 1.17em; margin: 0.5em  0; }
-.ao3ce-wrapper trix-editor h4 { font-size: 1em;    margin: 0.67em 0; }
-.ao3ce-wrapper trix-editor h5 { font-size: 0.83em; margin: 0.83em 0; }
-.ao3ce-wrapper trix-editor h6 { font-size: 0.75em; margin: 1em    0; }
+.ao3ce-wrapper .ao3ce-editor h1 { font-size: 2em;    margin: 0.33em 0; }
+.ao3ce-wrapper .ao3ce-editor h2 { font-size: 1.5em;  margin: 0.42em 0; }
+.ao3ce-wrapper .ao3ce-editor h3 { font-size: 1.17em; margin: 0.5em  0; }
+.ao3ce-wrapper .ao3ce-editor h4 { font-size: 1em;    margin: 0.67em 0; }
+.ao3ce-wrapper .ao3ce-editor h5 { font-size: 0.83em; margin: 0.83em 0; }
+.ao3ce-wrapper .ao3ce-editor h6 { font-size: 0.75em; margin: 1em    0; }
 
-.ao3ce-wrapper trix-editor sup { vertical-align: super; font-size: 0.75em; }
-.ao3ce-wrapper trix-editor sub { vertical-align: sub;   font-size: 0.75em; }
-.ao3ce-wrapper trix-editor big   { font-size: 1.17em; }
-.ao3ce-wrapper trix-editor small { font-size: 0.83em; }
+.ao3ce-wrapper .ao3ce-editor p { margin: 0 0 0.5em; }
 
-.ao3ce-wrapper trix-editor :is(code, tt, kbd, samp) {
+.ao3ce-wrapper .ao3ce-editor sup { vertical-align: super; font-size: 0.75em; }
+.ao3ce-wrapper .ao3ce-editor sub { vertical-align: sub;   font-size: 0.75em; }
+.ao3ce-wrapper .ao3ce-editor big   { font-size: 1.17em; }
+.ao3ce-wrapper .ao3ce-editor small { font-size: 0.83em; }
+
+.ao3ce-wrapper .ao3ce-editor b, .ao3ce-wrapper .ao3ce-editor strong { font-weight: bold; }
+.ao3ce-wrapper .ao3ce-editor i, .ao3ce-wrapper .ao3ce-editor em     { font-style: italic; }
+.ao3ce-wrapper .ao3ce-editor u, .ao3ce-wrapper .ao3ce-editor ins    { text-decoration: underline; }
+.ao3ce-wrapper .ao3ce-editor s, .ao3ce-wrapper .ao3ce-editor strike,
+.ao3ce-wrapper .ao3ce-editor del { text-decoration: line-through; }
+
+.ao3ce-wrapper .ao3ce-editor :is(code, tt, kbd, samp, pre) {
   font-family: var(--ao3ce-font-mono);
 }
 
-.ao3ce-wrapper trix-editor blockquote {
+.ao3ce-wrapper .ao3ce-editor blockquote {
   border-left: 3px solid var(--ao3ce-border);
   margin: 0.5em 0 0.5em 1em;
   padding-left: 0.75em;
 }
 
-.ao3ce-wrapper trix-editor ul,
-.ao3ce-wrapper trix-editor ul li { list-style: disc; }
-.ao3ce-wrapper trix-editor ol,
-.ao3ce-wrapper trix-editor ol li { list-style: decimal; }
-.ao3ce-wrapper trix-editor ul,
-.ao3ce-wrapper trix-editor ol   { padding-left: 1.5em; }
+.ao3ce-wrapper .ao3ce-editor img { max-width: 100%; }
 
-/* ── Dark mode: Trix toolbar adjustments ───────────────────────────────── */
-
-.ao3ce-dark trix-toolbar .trix-button-group,
-.ao3ce-dark trix-toolbar .trix-button-group:not(:first-child) { border-color: var(--ao3ce-border); }
-.ao3ce-dark trix-toolbar .trix-button { background: transparent; color: var(--ao3ce-text); border-bottom-color: var(--ao3ce-border); }
-.ao3ce-dark trix-toolbar .trix-button:not(:first-child)       { border-left-color: var(--ao3ce-border); }
-.ao3ce-dark trix-toolbar .trix-button.trix-active             { background: #3a3a3a; color: #fff; }
-.ao3ce-dark trix-toolbar .trix-button:disabled                { color: #777; }
-.ao3ce-dark trix-toolbar .trix-button--icon::before           { filter: invert(1); }
-.ao3ce-dark trix-toolbar .trix-button--icon:disabled::before  { filter: invert(1) opacity(0.3); }
-
-@media (prefers-color-scheme: dark) {
-  .ao3ce-wrapper trix-toolbar .trix-button-group,
-  .ao3ce-wrapper trix-toolbar .trix-button-group:not(:first-child) { border-color: var(--ao3ce-border); }
-  .ao3ce-wrapper trix-toolbar .trix-button { background: transparent; color: var(--ao3ce-text); border-bottom-color: var(--ao3ce-border); }
-  .ao3ce-wrapper trix-toolbar .trix-button:not(:first-child)       { border-left-color: var(--ao3ce-border); }
-  .ao3ce-wrapper trix-toolbar .trix-button.trix-active             { background: #3a3a3a; color: #fff; }
-  .ao3ce-wrapper trix-toolbar .trix-button:disabled                { color: #777; }
-  .ao3ce-wrapper trix-toolbar .trix-button--icon::before           { filter: invert(1); }
-  .ao3ce-wrapper trix-toolbar .trix-button--icon:disabled::before  { filter: invert(1) opacity(0.3); }
-}
+.ao3ce-wrapper .ao3ce-editor ul,
+.ao3ce-wrapper .ao3ce-editor ul li { list-style: disc; }
+.ao3ce-wrapper .ao3ce-editor ol,
+.ao3ce-wrapper .ao3ce-editor ol li { list-style: decimal; }
+.ao3ce-wrapper .ao3ce-editor ul,
+.ao3ce-wrapper .ao3ce-editor ol   { padding-left: 1.5em; }

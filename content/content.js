@@ -1,65 +1,26 @@
-/* AO3 Comment Editor — content script */
+/* AO3 Comment Editor — content script.
+   Sanitizer functions (sanitizeToFragment, sanitizeToString) come from
+   content/sanitizer.js, loaded before this file per manifest.json. */
 
-const ALLOWED_TAGS = [
-  "a","abbr","acronym","address","b","big","blockquote","br",
-  "caption","center","cite","code","col","colgroup","dd","del",
-  "details","dfn","div","dl","dt","em","figcaption","figure",
-  "h1","h2","h3","h4","h5","h6","hr","i","img","ins","kbd",
-  "li","ol","p","pre","q","ruby","rt","rp","s","samp","small",
-  "span","strike","strong","sub","summary","sup","table","tbody",
-  "td","tfoot","th","thead","tr","tt","u","ul","var",
+// Inline toggles handled natively by Squire: [label, tag, title, method suffix]
+const NATIVE_BUTTONS = [
+  ["B",  "B",   "Bold (b)",          "Bold"],
+  ["I",  "I",   "Italic (i)",        "Italic"],
+  ["U",  "U",   "Underline (u)",     "Underline"],
+  ["S",  "S",   "Strikethrough (s)", "Strikethrough"],
+  ["x²", "SUP", "Superscript (sup)", "Superscript"],
+  ["x₂", "SUB", "Subscript (sub)",   "Subscript"],
 ];
 
-const ALLOWED_ATTR = [
-  "align","alt","axis","class","dir","height","href","name",
-  "src","title","width",
-];
-
-function sanitize(html) {
-  return DOMPurify.sanitize(html, { ALLOWED_TAGS, ALLOWED_ATTR, KEEP_CONTENT: true });
-}
-
-// Extend Trix with AO3-allowed inline tags it doesn't support natively.
-// tagName tells Trix to recognize the tag when loading HTML AND emit it on serialize.
-const AO3_EXTRA_ATTRS = {
-  underline:   { tagName: "u",      inheritable: true, parser: el => el.tagName === "U" },
-  inserted:    { tagName: "ins",    inheritable: true, parser: el => el.tagName === "INS" },
-  strikeS:     { tagName: "s",      inheritable: true, parser: el => el.tagName === "S" },
-  strikeTag:   { tagName: "strike", inheritable: true, parser: el => el.tagName === "STRIKE" },
-  superscript: { tagName: "sup",    inheritable: true, parser: el => el.tagName === "SUP" },
-  subscript:   { tagName: "sub",    inheritable: true, parser: el => el.tagName === "SUB" },
-  small:       { tagName: "small",  inheritable: true, parser: el => el.tagName === "SMALL" },
-  big:         { tagName: "big",    inheritable: true, parser: el => el.tagName === "BIG" },
-  teletype:    { tagName: "tt",     inheritable: true, parser: el => el.tagName === "TT" },
-};
-
-for (const [name, cfg] of Object.entries(AO3_EXTRA_ATTRS)) {
-  Trix.config.textAttributes[name] = cfg;
-}
-
-// Register h2–h6 as block attributes (Trix ships heading1 → h1 only).
-for (let n = 2; n <= 6; n++) {
-  Trix.config.blockAttributes[`heading${n}`] = {
-    tagName: `h${n}`,
-    terminal: true,
-    breakOnReturn: true,
-    group: false,
-  };
-}
-
-// Buttons to show in the extra toolbar row: [label, attributeName, title]
+// Inline toggles via changeFormat: [label, tag, title]
 const EXTRA_BUTTONS = [
-  ["U",    "underline",   "Underline (u)"],
-  ["ins",  "inserted",    "Inserted (ins)"],
-  ["sup",  "superscript", "Superscript (sup)"],
-  ["sub",  "subscript",   "Subscript (sub)"],
-  ["sml",  "small",       "Small (small)"],
-  ["big",  "big",         "Big (big)"],
-  ["tt",   "teletype",    "Teletype (tt)"],
+  ["ins", "INS",   "Inserted (ins)"],
+  ["sml", "SMALL", "Small (small)"],
+  ["big", "BIG",   "Big (big)"],
+  ["tt",  "TT",    "Teletype (tt)"],
 ];
 
 const injected = new WeakSet();
-let editorCounter = 0;
 
 function isPageDark() {
   const bg = getComputedStyle(document.body).backgroundColor;
@@ -68,6 +29,43 @@ function isPageDark() {
   if (!m) return false;
   const [r, g, b] = m.map(Number);
   return (0.299 * r + 0.587 * g + 0.114 * b) < 128;
+}
+
+function makeButton(label, title, className) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = label;
+  btn.title = title;
+  btn.className = className;
+  btn.tabIndex = -1;
+  // keep the editor selection: buttons must not steal focus
+  btn.addEventListener("mousedown", (e) => e.preventDefault());
+  return btn;
+}
+
+function makeGroup(className) {
+  const group = document.createElement("span");
+  group.className = "ao3ce-tool-group" + (className ? " " + className : "");
+  return group;
+}
+
+// Toggle the selected blocks to/from <hN>.
+function toggleHeading(squire, level) {
+  const tag = "H" + level;
+  squire.modifyBlocks((frag) => {
+    const output = document.createDocumentFragment();
+    for (const node of Array.from(frag.childNodes)) {
+      if (node.nodeType === Node.ELEMENT_NODE && /^(H[1-6]|P|DIV)$/.test(node.tagName)) {
+        const el = document.createElement(node.tagName === tag ? "P" : tag);
+        el.append(...node.childNodes);
+        output.append(el);
+      } else {
+        output.append(node);
+      }
+    }
+    return output;
+  });
+  squire.focus();
 }
 
 function injectEditor(textarea) {
@@ -92,106 +90,184 @@ function injectEditor(textarea) {
 
   toggleBar.append(richBtn, plainBtn);
 
-  const inputId = `ao3ce-input-${++editorCounter}`;
-  const hiddenInput = document.createElement("input");
-  hiddenInput.type = "hidden";
-  hiddenInput.id = inputId;
+  // ── Toolbar ──
+  const toolbar = document.createElement("div");
+  toolbar.className = "ao3ce-toolbar";
 
-  const editorEl = document.createElement("trix-editor");
-  editorEl.setAttribute("input", inputId);
+  const editorEl = document.createElement("div");
   editorEl.className = "ao3ce-editor";
 
-  // image URL row (shown/hidden via Image button in toggle bar)
-  const imageRow = document.createElement("div");
-  imageRow.className = "ao3ce-image-row";
+  const squire = new Squire(editorEl, {
+    blockTag: "P",
+    sanitizeToDOMFragment: sanitizeToFragment,
+  });
 
-  const imageInput = document.createElement("input");
-  imageInput.type = "url";
-  imageInput.placeholder = "Image URL…";
+  const inlineButtons = []; // [button, tag] pairs for active-state updates
 
-  const imageInsertBtn = document.createElement("button");
-  imageInsertBtn.type = "button";
-  imageInsertBtn.textContent = "Insert";
+  const inlineGroup = makeGroup();
+  for (const [label, tag, title, method] of NATIVE_BUTTONS) {
+    const btn = makeButton(label, title, "ao3ce-tool");
+    btn.addEventListener("click", () => {
+      squire.hasFormat(tag) ? squire["remove" + method]() : squire[method.toLowerCase()]();
+      squire.focus();
+    });
+    inlineButtons.push([btn, tag]);
+    inlineGroup.append(btn);
+  }
+  for (const [label, tag, title] of EXTRA_BUTTONS) {
+    const btn = makeButton(label, title, "ao3ce-tool ao3ce-tool--mono");
+    btn.addEventListener("click", () => {
+      squire.hasFormat(tag)
+        ? squire.changeFormat(null, { tag })
+        : squire.changeFormat({ tag }, null);
+      squire.focus();
+    });
+    inlineButtons.push([btn, tag]);
+    inlineGroup.append(btn);
+  }
 
-  const imageCancelBtn = document.createElement("button");
-  imageCancelBtn.type = "button";
-  imageCancelBtn.textContent = "Cancel";
+  // h2–h6 in a compact grid group
+  const headingsGroup = makeGroup("ao3ce-headings-group");
+  for (let n = 2; n <= 6; n++) {
+    const btn = makeButton("H" + n, "Heading " + n + " (h" + n + ")", "ao3ce-tool ao3ce-heading-btn");
+    btn.addEventListener("click", () => toggleHeading(squire, n));
+    headingsGroup.append(btn);
+  }
 
-  const imageHint = document.createElement("small");
-  imageHint.className = "ao3ce-image-hint";
-  imageHint.textContent = "Must be a direct image link ending in .jpg, .jpeg, .png, or .gif — hosted on a permanent host (Imgur, Pillowfort, etc.). Discord and Tumblr links expire.";
+  const blockGroup = makeGroup();
 
-  imageRow.append(imageInput, imageInsertBtn, imageCancelBtn, imageHint);
+  const quoteBtn = makeButton("❝", "Blockquote (blockquote)", "ao3ce-tool");
+  quoteBtn.addEventListener("click", () => {
+    squire.hasFormat("BLOCKQUOTE") ? squire.decreaseQuoteLevel() : squire.increaseQuoteLevel();
+    squire.focus();
+  });
 
-  wrapper.append(toggleBar, hiddenInput, editorEl, imageRow);
+  const codeBtn = makeButton("</>", "Code (code / pre)", "ao3ce-tool ao3ce-tool--mono");
+  codeBtn.addEventListener("click", () => {
+    squire.toggleCode();
+    squire.focus();
+  });
+
+  const ulBtn = makeButton("•—", "Bulleted list (ul)", "ao3ce-tool");
+  ulBtn.addEventListener("click", () => {
+    squire.hasFormat("UL") ? squire.removeList() : squire.makeUnorderedList();
+    squire.focus();
+  });
+
+  const olBtn = makeButton("1.—", "Numbered list (ol)", "ao3ce-tool");
+  olBtn.addEventListener("click", () => {
+    squire.hasFormat("OL") ? squire.removeList() : squire.makeOrderedList();
+    squire.focus();
+  });
+
+  blockGroup.append(quoteBtn, codeBtn, ulBtn, olBtn);
+
+  const insertGroup = makeGroup();
+  const linkBtn = makeButton("🔗", "Insert link by URL", "ao3ce-tool");
+  const imageBtn = makeButton("IMG", "Insert image by URL", "ao3ce-tool ao3ce-image-btn");
+  insertGroup.append(linkBtn, imageBtn);
+
+  toolbar.append(inlineGroup, headingsGroup, blockGroup, insertGroup);
+
+  // highlight active inline formats as the selection moves
+  function updateActiveStates() {
+    for (const [btn, tag] of inlineButtons) {
+      btn.classList.toggle("ao3ce-tool--active", squire.hasFormat(tag));
+    }
+    quoteBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("BLOCKQUOTE"));
+    ulBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("UL"));
+    olBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("OL"));
+  }
+  squire.addEventListener("pathChange", updateActiveStates);
+  squire.addEventListener("select", updateActiveStates);
+
+  // ── URL prompt row (shared by link + image buttons) ──
+  const urlRow = document.createElement("div");
+  urlRow.className = "ao3ce-image-row";
+  let urlRowMode = null; // "link" | "image"
+
+  const urlInput = document.createElement("input");
+  urlInput.type = "url";
+
+  const urlInsertBtn = document.createElement("button");
+  urlInsertBtn.type = "button";
+  urlInsertBtn.textContent = "Insert";
+
+  const urlCancelBtn = document.createElement("button");
+  urlCancelBtn.type = "button";
+  urlCancelBtn.textContent = "Cancel";
+
+  const unlinkBtn = document.createElement("button");
+  unlinkBtn.type = "button";
+  unlinkBtn.textContent = "Unlink";
+
+  const urlHint = document.createElement("small");
+  urlHint.className = "ao3ce-image-hint";
+
+  urlRow.append(urlInput, urlInsertBtn, unlinkBtn, urlCancelBtn, urlHint);
+
+  const IMAGE_HINT = "Must be a direct image link ending in .jpg, .jpeg, .png, or .gif — hosted on a permanent host (Imgur, Pillowfort, etc.). Discord and Tumblr links expire.";
+  const LINK_HINT = "Select text first to turn it into a link, or the URL itself is inserted.";
+
+  function openUrlRow(mode) {
+    if (urlRow.style.display === "flex" && urlRowMode === mode) {
+      closeUrlRow();
+      return;
+    }
+    urlRowMode = mode;
+    urlInput.placeholder = mode === "image" ? "Image URL…" : "Link URL…";
+    urlHint.textContent = mode === "image" ? IMAGE_HINT : LINK_HINT;
+    unlinkBtn.style.display = mode === "link" ? "" : "none";
+    urlRow.style.display = "flex";
+    urlInput.focus();
+  }
+
+  function closeUrlRow() {
+    urlRow.style.display = "none";
+    urlInput.value = "";
+    urlRowMode = null;
+  }
+
+  linkBtn.addEventListener("click", () => openUrlRow("link"));
+  imageBtn.addEventListener("click", () => openUrlRow("image"));
+  urlCancelBtn.addEventListener("click", closeUrlRow);
+
+  unlinkBtn.addEventListener("click", () => {
+    squire.removeLink();
+    closeUrlRow();
+    squire.focus();
+  });
+
+  urlInsertBtn.addEventListener("click", () => {
+    const url = urlInput.value.trim();
+    if (!url) return;
+    if (urlRowMode === "image") {
+      squire.insertImage(url, { alt: "" });
+    } else {
+      squire.makeLink(url);
+    }
+    closeUrlRow();
+    squire.focus();
+  });
+
+  urlInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); urlInsertBtn.click(); }
+    if (e.key === "Escape") urlCancelBtn.click();
+  });
+
+  wrapper.append(toggleBar, toolbar, editorEl, urlRow);
   textarea.parentNode.insertBefore(wrapper, textarea);
   textarea.classList.add("ao3ce-plain-textarea");
   if (isPageDark()) textarea.classList.add("ao3ce-dark");
   textarea.style.display = "none";
 
-  let trixReady = false;
+  if (textarea.value.trim()) {
+    squire.setHTML(textarea.value);
+  }
 
-  editorEl.addEventListener("trix-initialize", () => {
-    trixReady = true;
-    if (textarea.value.trim()) {
-      editorEl.editor.loadHTML(textarea.value);
-    }
-
-    // inject Image button and extra AO3 tag buttons into the toolbar
-    const toolbar = wrapper.querySelector("trix-toolbar");
-    if (toolbar) {
-      const imageBtn = document.createElement("button");
-      imageBtn.type = "button";
-      imageBtn.textContent = "IMG";
-      imageBtn.className = "trix-button ao3ce-image-btn";
-      imageBtn.setAttribute("title", "Insert image by URL");
-      imageBtn.tabIndex = -1;
-
-      const fileTools = toolbar.querySelector(".trix-button-group--file-tools");
-      if (fileTools) fileTools.append(imageBtn);
-
-      imageBtn.addEventListener("click", () => {
-        const open = imageRow.style.display === "flex";
-        imageRow.style.display = open ? "none" : "flex";
-        if (!open) imageInput.focus();
-      });
-
-      // h2–h6 in a compact grid group, inserted after the block-tools group
-      const blockTools = toolbar.querySelector(".trix-button-group--block-tools");
-      if (blockTools) {
-        const headingsGroup = document.createElement("span");
-        headingsGroup.className = "trix-button-group ao3ce-headings-group";
-        for (let n = 2; n <= 6; n++) {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.textContent = `H${n}`;
-          btn.title = `Heading ${n} (h${n})`;
-          btn.className = "trix-button ao3ce-heading-btn";
-          btn.setAttribute("data-trix-attribute", `heading${n}`);
-          headingsGroup.append(btn);
-        }
-        blockTools.after(headingsGroup);
-      }
-
-      // extra group for inline AO3 tags Trix doesn't have natively
-      const extraGroup = document.createElement("div");
-      extraGroup.className = "trix-button-group ao3ce-extra-tags";
-      for (const [label, attr, title] of EXTRA_BUTTONS) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = label;
-        btn.title = title;
-        btn.className = "trix-button";
-        btn.setAttribute("data-trix-attribute", attr);
-        extraGroup.append(btn);
-      }
-      (toolbar.querySelector(".trix-button-row") || toolbar).append(extraGroup);
-    }
-  }, { once: true });
-
-  // sync Trix → AO3 textarea on every change so the form submits correctly
-  editorEl.addEventListener("trix-change", () => {
-    textarea.value = sanitize(hiddenInput.value);
+  // sync Squire → AO3 textarea on every change so the form submits correctly
+  squire.addEventListener("input", () => {
+    textarea.value = sanitizeToString(squire.getHTML());
   });
 
   function showRich() {
@@ -202,50 +278,28 @@ function injectEditor(textarea) {
     editorEl.style.height = textarea.offsetHeight + "px";
     textarea.style.display = "none";
 
-    if (trixReady) {
-      editorEl.editor.loadHTML(sanitize(textarea.value));
-    }
+    squire.setHTML(textarea.value);
 
-    wrapper.querySelectorAll("trix-toolbar, trix-editor").forEach(el => el.style.display = "");
+    toolbar.style.display = "";
+    editorEl.style.display = "";
   }
 
   function showPlain() {
     plainBtn.classList.add("ao3ce-btn--active");
     richBtn.classList.remove("ao3ce-btn--active");
 
-    // flush current Trix content and match height to the editor area
-    if (trixReady) {
-      textarea.value = sanitize(hiddenInput.value);
-    }
+    // flush current editor content and match height to the editor area
+    textarea.value = sanitizeToString(squire.getHTML());
     textarea.style.height = editorEl.offsetHeight + "px";
 
-    wrapper.querySelectorAll("trix-toolbar, trix-editor").forEach(el => el.style.display = "none");
+    toolbar.style.display = "none";
+    editorEl.style.display = "none";
+    closeUrlRow();
     textarea.style.display = "";
   }
 
   richBtn.addEventListener("click", showRich);
   plainBtn.addEventListener("click", showPlain);
-
-  imageCancelBtn.addEventListener("click", () => {
-    imageRow.style.display = "none";
-    imageInput.value = "";
-  });
-
-  imageInsertBtn.addEventListener("click", () => {
-    const url = imageInput.value.trim();
-    if (!url) return;
-    if (trixReady) {
-      editorEl.editor.insertHTML(`<img src="${url}" alt="">`);
-    }
-    imageRow.style.display = "none";
-    imageInput.value = "";
-    editorEl.focus();
-  });
-
-  imageInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") imageInsertBtn.click();
-    if (e.key === "Escape") imageCancelBtn.click();
-  });
 }
 
 function scanAndInject() {
