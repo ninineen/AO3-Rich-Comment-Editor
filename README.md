@@ -80,11 +80,13 @@ This installs dependencies, copies vendored libraries into `vendor/`, lints, and
 | `npm run lint` | Validate the extension with web-ext |
 | `npm run build` | Package into a submission-ready ZIP in `web-ext-artifacts/` |
 | `npm run run:firefox` | Load the extension in Firefox for live testing |
+| `npm run run:mobile` | Load the extension in Firefox for Android (needs `adb`, device connected/paired) for live testing |
 
 ### Reloading after changes
 
 - **Chrome:** go to `chrome://extensions`, click the refresh icon on the extension card, then hard-reload the AO3 tab
 - **Firefox:** `npm run run:firefox` auto-reloads on file changes, or go to `about:debugging` and click **Reload**
+- **Firefox for Android:** `npm run run:mobile` auto-reloads the same way, targeting a device connected via `adb` (USB or paired over Wi-Fi debugging)
 
 ### Key files
 
