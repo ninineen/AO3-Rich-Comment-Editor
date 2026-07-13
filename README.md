@@ -44,14 +44,18 @@ Matches AO3's own allowed tags: `<b>`, `<i>`, `<u>`, `<em>`, `<strong>`, `<a>`, 
 
 ---
 
-## 📥 Installation (unpacked / developer mode)
+## 📥 Installation
 
-### Chrome / Edge
-1. Go to `chrome://extensions`
-2. Enable **Developer mode** (toggle, top right)
-3. Click **Load unpacked**
-4. Select the `AO3-Rich-Comment-Editor/` folder
-5. Navigate to any AO3 work page: the editor appears in the comment box
+**Firefox only** — Chrome/Edge support is not planned for now.
+
+### Firefox (signed release build)
+1. Go to the [Releases page](https://github.com/ninineen/AO3-Rich-Comment-Editor/releases) and download the `.xpi` from the latest release
+2. Open Firefox and go to `about:addons`
+3. Click the gear icon (⚙️) near the top of the page
+4. Choose **Install Add-on From File...** and select the downloaded `.xpi`
+5. Confirm the install prompt — the editor now appears in AO3 comment boxes and persists across restarts
+
+## 🧑‍💻 Installation (unpacked / developer mode)
 
 ### Firefox
 1. Go to `about:debugging#/runtime/this-firefox`
@@ -84,7 +88,6 @@ This installs dependencies, copies vendored libraries into `vendor/`, lints, and
 
 ### Reloading after changes
 
-- **Chrome:** go to `chrome://extensions`, click the refresh icon on the extension card, then hard-reload the AO3 tab
 - **Firefox:** `npm run run:firefox` auto-reloads on file changes, or go to `about:debugging` and click **Reload**
 - **Firefox for Android:** `npm run run:mobile` auto-reloads the same way, targeting a device connected via `adb` (USB or paired over Wi-Fi debugging)
 
