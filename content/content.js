@@ -20,8 +20,6 @@ const EXTRA_BUTTONS = [
   ["tt",  "TT",    "Teletype (tt)"],
 ];
 
-const injected = new WeakSet();
-
 function isPageDark() {
   const bg = getComputedStyle(document.body).backgroundColor;
   // parse rgb(r, g, b) and check luminance
@@ -69,8 +67,11 @@ function toggleHeading(squire, level) {
 }
 
 function injectEditor(textarea) {
-  if (injected.has(textarea)) return;
-  injected.add(textarea);
+  // Check the DOM itself, not an in-memory flag: a WeakSet only survives for
+  // the lifetime of one script execution, so it can't detect a wrapper left
+  // over from a previous injection (e.g. an extension reload into an
+  // already-open page during development).
+  if (textarea.previousElementSibling?.classList.contains("ao3ce-wrapper")) return;
 
   const wrapper = document.createElement("div");
   wrapper.className = "ao3ce-wrapper" + (isPageDark() ? " ao3ce-dark" : "");
@@ -81,11 +82,13 @@ function injectEditor(textarea) {
   const richBtn = document.createElement("button");
   richBtn.type = "button";
   richBtn.textContent = "Rich";
+  richBtn.title = "Rich text editor";
   richBtn.className = "ao3ce-btn ao3ce-btn--active";
 
   const plainBtn = document.createElement("button");
   plainBtn.type = "button";
   plainBtn.textContent = "Plain (HTML)";
+  plainBtn.title = "Edit the raw HTML by hand";
   plainBtn.className = "ao3ce-btn";
 
   toggleBar.append(richBtn, plainBtn);
@@ -177,6 +180,7 @@ function injectEditor(textarea) {
     quoteBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("BLOCKQUOTE"));
     ulBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("UL"));
     olBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("OL"));
+    codeBtn.classList.toggle("ao3ce-tool--active", squire.hasFormat("PRE") || squire.hasFormat("CODE"));
   }
   squire.addEventListener("pathChange", updateActiveStates);
   squire.addEventListener("select", updateActiveStates);
@@ -192,14 +196,17 @@ function injectEditor(textarea) {
   const urlInsertBtn = document.createElement("button");
   urlInsertBtn.type = "button";
   urlInsertBtn.textContent = "Insert";
+  urlInsertBtn.title = "Insert (Enter)";
 
   const urlCancelBtn = document.createElement("button");
   urlCancelBtn.type = "button";
   urlCancelBtn.textContent = "Cancel";
+  urlCancelBtn.title = "Cancel (Esc)";
 
   const unlinkBtn = document.createElement("button");
   unlinkBtn.type = "button";
   unlinkBtn.textContent = "Unlink";
+  unlinkBtn.title = "Remove the link from the selected text";
 
   const urlHint = document.createElement("small");
   urlHint.className = "ao3ce-image-hint";

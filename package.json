@@ -8,7 +8,7 @@
     "vendor": "cp node_modules/squire-rte/dist/squire-raw.js vendor/squire.js && patch vendor/squire.js vendor/squire-no-innerhtml.patch",
     "lint": "web-ext lint",
     "build": "web-ext build --overwrite-dest",
-    "run:firefox": "web-ext run --target firefox-desktop --verbose --start-url https://archiveofourown.org/works/86984576/chapters/230309206#workskin",
+    "run:firefox": "LIBGL_ALWAYS_SOFTWARE=1 MOZ_ACCELERATED=0 MOZ_DISABLE_RDD_SANDBOX=1 web-ext run --target firefox-desktop --verbose --start-url https://archiveofourown.org/works/86984576/chapters/230309206#workskin",
     "test": "jest"
   },
   "dependencies": {

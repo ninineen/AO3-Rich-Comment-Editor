@@ -114,9 +114,13 @@
   cursor: pointer;
   font-size: 0.95em;
   line-height: 1;
-  padding: 0.4em 0.65em;
-  min-width: 2.2em;
-  min-height: 2.2em;
+  /* rem, not em: these must stay fixed regardless of what font-size a
+     modifier class (like .ao3ce-tool--mono) later sets on this same
+     element, otherwise the box shrinks along with the smaller-looking
+     monospace text instead of just the text growing to compensate. */
+  padding: 0.4rem 0.65rem;
+  min-width: 2.2rem;
+  min-height: 2.2rem;
 }
 
 .ao3ce-tool:first-child { border-left: none; }
@@ -128,7 +132,14 @@
   font-weight: bold;
 }
 
-.ao3ce-tool--mono { font-family: var(--ao3ce-font-mono); font-size: 0.85em; }
+/* Box metrics on .ao3ce-tool are rem-based specifically so this can bump
+   font-size (generic monospace renders smaller than the page's sans-serif
+   at the same size) without shrinking the button's own padding/min-height. */
+.ao3ce-tool--mono {
+  font-family: var(--ao3ce-font-mono);
+  font-weight: 600;
+  font-size: 1.05em;
+}
 
 /* h1–h6 in a compact grid */
 .ao3ce-headings-group {
@@ -258,13 +269,73 @@ textarea.ao3ce-plain-textarea.ao3ce-dark {
   color: #ccc;
 }
 
-/* AO3 CSS reset overrides removed for now — seeing what the editor looks
-   like against AO3's own element-only reset before reintroducing any.
-   Lists needed reintroducing immediately: AO3 sets `list-style: none` on
-   ul/li site-wide, so bullets/numbers render invisible without this.
-   .ao3ce-wrapper prefix keeps specificity at (0,2,N) — no !important. */
+/* ── AO3 CSS reset overrides ─────────────────────────────────────────────
+   AO3's reset uses element-only selectors (0,0,1 specificity).
+   .ao3ce-wrapper prefix gives us (0,2,N), winning cleanly without !important.
+   Ported from the Trix-era rules (scoped to trix-editor) to the current
+   Squire markup (scoped to .ao3ce-editor) now that the pattern's confirmed
+   to work end to end. */
 
 .ao3ce-wrapper .ao3ce-editor img { max-width: 100%; }
+
+.ao3ce-wrapper .ao3ce-editor :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: bold;
+  display: block;
+}
+.ao3ce-wrapper .ao3ce-editor h1 { font-size: 2em;    margin: 0.33em 0; }
+.ao3ce-wrapper .ao3ce-editor h2 { font-size: 1.5em;  margin: 0.42em 0; }
+.ao3ce-wrapper .ao3ce-editor h3 { font-size: 1.17em; margin: 0.5em  0; }
+.ao3ce-wrapper .ao3ce-editor h4 { font-size: 1em;    margin: 0.67em 0; }
+.ao3ce-wrapper .ao3ce-editor h5 { font-size: 0.83em; margin: 0.83em 0; }
+.ao3ce-wrapper .ao3ce-editor h6 { font-size: 0.75em; margin: 1em    0; }
+
+.ao3ce-wrapper .ao3ce-editor p { margin: 0 0 0.5em; }
+
+.ao3ce-wrapper .ao3ce-editor sup { vertical-align: super; font-size: 0.75em; }
+.ao3ce-wrapper .ao3ce-editor sub { vertical-align: sub;   font-size: 0.75em; }
+.ao3ce-wrapper .ao3ce-editor big   { font-size: 1.17em; }
+.ao3ce-wrapper .ao3ce-editor small { font-size: 0.83em; }
+
+.ao3ce-wrapper .ao3ce-editor b, .ao3ce-wrapper .ao3ce-editor strong { font-weight: bold; }
+.ao3ce-wrapper .ao3ce-editor i, .ao3ce-wrapper .ao3ce-editor em     { font-style: italic; }
+.ao3ce-wrapper .ao3ce-editor u, .ao3ce-wrapper .ao3ce-editor ins    { text-decoration: underline; }
+.ao3ce-wrapper .ao3ce-editor s, .ao3ce-wrapper .ao3ce-editor strike,
+.ao3ce-wrapper .ao3ce-editor del { text-decoration: line-through; }
+
+/* font-size bumped: monospace fonts read visually smaller than the
+   surrounding serif body copy at the same declared size (same issue as
+   the toolbar's mono buttons). Inline code gets a pill background so it
+   reads as code inline; pre gets a full block treatment since a bare
+   font-family swap alone is easy to miss, especially in light mode. */
+.ao3ce-wrapper .ao3ce-editor :is(code, tt, kbd, samp) {
+  font-family: var(--ao3ce-font-mono);
+  font-size: 0.95em;
+  background: color-mix(in srgb, var(--ao3ce-text) 10%, transparent);
+  border-radius: 3px;
+  padding: 0.1em 0.4em;
+}
+
+.ao3ce-wrapper .ao3ce-editor pre {
+  font-family: var(--ao3ce-font-mono);
+  font-size: 0.95em;
+  display: block;
+  background: color-mix(in srgb, var(--ao3ce-text) 6%, var(--ao3ce-bg));
+  border: 1px solid var(--ao3ce-border-sub);
+  border-radius: 4px;
+  margin: 0.5em 0;
+  padding: 0.75em 1em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* code nested inside pre shouldn't double up on the pill styling */
+.ao3ce-wrapper .ao3ce-editor pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 1em;
+}
 
 .ao3ce-wrapper .ao3ce-editor ul,
 .ao3ce-wrapper .ao3ce-editor ul li { list-style: disc; }
@@ -272,3 +343,10 @@ textarea.ao3ce-plain-textarea.ao3ce-dark {
 .ao3ce-wrapper .ao3ce-editor ol li { list-style: decimal; }
 .ao3ce-wrapper .ao3ce-editor ul,
 .ao3ce-wrapper .ao3ce-editor ol   { padding-left: 1.5em; margin: 0 0 0.5em; }
+
+.ao3ce-wrapper .ao3ce-editor blockquote {
+  list-style: none;
+  border-left: 3px solid var(--ao3ce-border);
+  margin: 0.5em 0 0.5em 1em;
+  padding-left: 0.75em;
+}

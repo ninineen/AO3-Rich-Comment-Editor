@@ -11,5 +11,6 @@ export default {
     "content/*.test.js",
     "jest.config.js",
     "coverage/**",
+    "**/*.tmp.*",
   ],
 };
