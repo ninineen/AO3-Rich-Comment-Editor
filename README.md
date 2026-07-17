@@ -6,6 +6,7 @@ A browser extension that adds a WYSIWYG rich text editor to AO3 comment boxes: t
 
 ![Mozilla Add-on Version](https://img.shields.io/amo/v/b4dea4cfa49341fb93c0?label=firefox%20add-on)
 ![Mozilla Add-on Users](https://img.shields.io/amo/users/b4dea4cfa49341fb93c0)
+[![Available on Firefox for Android](https://img.shields.io/badge/Available_on-Firefox_for_Android%E2%84%A2-20123a?logo=android&logoColor=3DDC84)](https://addons.mozilla.org/en-US/firefox/addon/b4dea4cfa49341fb93c0/)
 
 ![Before and after: a plain AO3 comment textarea, versus the same box with the extension installed showing a Rich/Plain toggle and a formatting toolbar](screenshots/before-after.png)
 
@@ -173,6 +174,8 @@ AO3-Rich-Comment-Editor/
 ## 🎨 Credits
 
 - Extension icon art by [thegingerbeck](https://archiveofourown.org/users/thegingerbeck) ([Tumblr](https://www.tumblr.com/tozerving)), used with permission.
+- Android is a trademark of Google LLC. The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the [Creative Commons 3.0 Attribution License](https://creativecommons.org/licenses/by/3.0/).
+- Firefox is a trademark of the Mozilla Foundation.
 
 ---
 
