@@ -156,15 +156,15 @@ AO3-Rich-Comment-Editor/
 │   ├── sanitizer.test.js   # Unit tests for the sanitizer
 │   └── fixtures/           # Test-only HTML fixtures
 ├── icons/
-│   ├── icon-48.png         # Art by @sunsetfoam (Abstraum / Traum)
-│   └── icon-128.png
+│   ├── icon-48.png
+│   └── icon-128.png        # Art by thegingerbeck
 └── screenshots/
     └── before-after.png    # Before/after shown at the top of this README
 ```
 
 ## 🎨 Credits
 
-- Extension icon art by [@sunsetfoam](https://www.instagram.com/sunsetfoam), reposted with credit as per their terms. Do not reuse for commercial or political purposes.
+- Extension icon art by [thegingerbeck](https://archiveofourown.org/users/thegingerbeck) ([Tumblr](https://www.tumblr.com/tozerving)), used with permission.
 
 ---
 
