@@ -173,9 +173,22 @@ AO3-Rich-Comment-Editor/
 
 ## 🎨 Credits
 
-- Extension icon art by [thegingerbeck](https://archiveofourown.org/users/thegingerbeck) ([Tumblr](https://www.tumblr.com/tozerving)), used with permission.
+- Extension icon art by [thegingerbeck](https://archiveofourown.org/users/thegingerbeck) ([Tumblr](https://www.tumblr.com/tozerving), [Bluesky](https://bsky.app/profile/thegingerbeck.bsky.social)), used with permission.
+- Packaged extension icon by [sunsetfoam](https://www.instagram.com/sunsetfoam), used with credit per their terms (no political use).
 - Android is a trademark of Google LLC. The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the [Creative Commons 3.0 Attribution License](https://creativecommons.org/licenses/by/3.0/).
 - Firefox is a trademark of the Mozilla Foundation.
+
+---
+
+## 📄 License
+
+The **code** in this repository is licensed under the [MIT License](LICENSE): use it, modify it, ship it. The only actual requirement is that you keep the copyright notice and license text with it.
+
+Beyond that, a credit or a link back isn't required, but it would be lovely. If this helped you build something, I'd genuinely enjoy hearing about it. 💖
+
+The **artwork is not covered by the MIT License.** The icons are used here with the artists' permission and are not yours to reuse. See the Credits above for terms, including sunsetfoam's no-political-use condition.
+
+Vendored [Squire](https://github.com/fastmail/Squire) is MIT licensed by Fastmail.
 
 ---
 

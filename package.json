@@ -2,6 +2,7 @@
   "name": "ao3-rich-comment-editor",
   "version": "1.0.2",
   "description": "Format AO3 comments with rich text editing",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "start": "npm install && npm run vendor && npm run lint && npm run build",
