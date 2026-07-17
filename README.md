@@ -2,6 +2,11 @@
 
 A browser extension that adds a WYSIWYG rich text editor to AO3 comment boxes: the same toggle between **Rich** and **Plain** modes that authors get in the work editor, now for commenters too.
 
+<a href="https://addons.mozilla.org/en-US/firefox/addon/b4dea4cfa49341fb93c0/"><img src="images/get-the-addon-fx-apr-2020.svg" alt="Get the Add-on for Firefox" width="172" height="60"></a>
+
+![Mozilla Add-on Version](https://img.shields.io/amo/v/b4dea4cfa49341fb93c0?label=firefox%20add-on)
+![Mozilla Add-on Users](https://img.shields.io/amo/users/b4dea4cfa49341fb93c0)
+
 ![Before and after: a plain AO3 comment textarea, versus the same box with the extension installed showing a Rich/Plain toggle and a formatting toolbar](screenshots/before-after.png)
 
 ---
@@ -64,7 +69,10 @@ Matches AO3's own allowed tags: `<b>`, `<i>`, `<u>`, `<em>`, `<strong>`, `<a>`, 
 
 **Firefox only.** Chrome/Edge support is not planned for now.
 
-### Firefox (signed release build)
+### Firefox (Mozilla Add-ons store)
+Install directly from [addons.mozilla.org](https://addons.mozilla.org/en-US/firefox/addon/b4dea4cfa49341fb93c0/).
+
+### Firefox (signed release build, manual)
 1. Go to the [Releases page](https://github.com/ninineen/AO3-Rich-Comment-Editor/releases) and download the `.xpi` from the latest release
 2. Open Firefox and go to `about:addons`
 3. Click the gear icon (⚙️) near the top of the page
